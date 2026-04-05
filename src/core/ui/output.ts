@@ -45,10 +45,8 @@ function formatSuggestionLine(
   const line = `  ${number} ${badge} ${chalk.white(header)}`;
 
   if (suggestion.body) {
-    const bodyLines = suggestion.body.split("\n");
-    const preview = bodyLines.slice(0, 3).join("\n");
-    const more = bodyLines.length > 3 ? chalk.dim(`     ... +${bodyLines.length - 3} more lines`) : "";
-    return `${line}\n${chalk.dim(`     ${preview}`)}${more ? `\n${more}` : ""}`;
+    const bodyPreview = suggestion.body.split("\n").slice(0, 1).join("");
+    return `${line}\n${chalk.dim(`     ${bodyPreview}`)}`;
   }
 
   return line;
@@ -56,22 +54,11 @@ function formatSuggestionLine(
 
 export function printSuggestionResult(result: SuggestionResult): void {
   console.log();
-  console.log(divider());
-  console.log(`  ${chalk.bold(chalk.white("📝 Commit Suggestions"))}`);
-  console.log(divider());
-  console.log();
-  console.log(`  ${chalk.dim("Summary:")}`);
-  console.log(`  ${chalk.italic(chalk.white(result.summary))}`);
-  console.log();
-  console.log(`  ${chalk.dim("Suggestions:")}`);
-  console.log();
 
   result.suggestions.forEach((suggestion, index) => {
     console.log(formatSuggestionLine(suggestion, index));
   });
 
-  console.log();
-  console.log(divider());
   console.log();
 }
 
