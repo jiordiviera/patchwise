@@ -1,6 +1,6 @@
 {
   "name": "patchwise",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "AI-assisted Git commits, with the developer still in charge.",
   "type": "module",
   "engines": {
@@ -33,7 +33,6 @@
     "version": "changeset version",
     "release": "changeset publish",
     "start": "node dist/index.js",
-    "start:dev": "cross-env NODE_ENV=development VELYX_REGISTRY_URL=http://velyx.test/api/v1 node dist/index.js",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
@@ -46,6 +45,10 @@
     "ai",
     "conventional-commits"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jiordiviera/patchwise.git"
+  },
   "author": "",
   "license": "MIT",
   "packageManager": "pnpm@10.33.0",
