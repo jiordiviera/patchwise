@@ -18,6 +18,7 @@ export async function createProgram(cwd = process.cwd()): Promise<Command> {
     .name("patchwise")
     .description("AI-assisted Git commits with explicit human validation.")
     .version(version);
+  
 
   program
     .command("suggest")
