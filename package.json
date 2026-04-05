@@ -10,6 +10,7 @@
     "dist"
   ],
   "publishConfig": {
+    "provenance": true,
     "access": "public"
   },
   "bin": {

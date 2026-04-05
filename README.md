@@ -4,20 +4,23 @@ AI-assisted Git commits, with you still in charge.
 
 Patchwise is a CLI tool that helps developers turn raw Git changes into clean, structured, and meaningful commits using AI assistance.
 
-It analyzes your diff, suggests commit messages, and guides you through staging and committing while keeping you fully in control.
+It analyzes your diff, suggests commit messages with detailed bodies, and guides you through staging and committing while keeping you fully in control.
 
 ---
 
 ## Features
 
 * Analyze staged or unstaged changes
-* Generate commit messages using AI
+* Generate commit messages with body using AI
 * Supports Conventional Commits
-* Interactive file selection
-* Edit before committing
+* Interactive file selection and staging
+* Live Groq model selection during setup
+* Custom commit message option
 * Optional push after commit
-* Provider-agnostic architecture, Groq by default
+* Smart diff truncation for large changesets
+* Colorful CLI output with type badges
 * Multi-language support (EN / FR)
+* Provider-agnostic architecture, Groq by default
 
 ---
 
@@ -37,7 +40,18 @@ pnpm add -g patchwise
 
 ## Quick Start
 
-### 1. Set your API key
+### 1. Run setup
+
+```bash
+patchwise setup
+```
+
+This interactive wizard will:
+- Ask for your Groq API key (get one at [console.groq.com/keys](https://console.groq.com/keys))
+- Let you pick a model from the live list of available Groq models
+- Set your preferred commit language
+
+Or set your API key manually:
 
 ```bash
 export GROQ_API_KEY=your_api_key_here
@@ -63,16 +77,25 @@ patchwise commit
 patchwise commit
 ```
 
-```txt
-Summary:
-Adds retry logic for failed payment transactions
+```
+────────────────────────────────────────────────
+  📝 Commit Suggestions
+────────────────────────────────────────────────
 
-Suggestions:
-1. feat(payment): add retry mechanism for failed transactions
-2. fix(payment): handle transient provider failures
-3. refactor(payment): improve error handling
+  Summary:
+  Update project configuration and add payment documentation
 
-Select a commit message:
+  Suggestions:
+
+  1. [CHORE] chore(config): update gitignore and add payment docs
+     - Add .gitignore entries for build artifacts
+     - Document Genuka Pay integration flow
+
+  2. [DOCS] docs: add payment docs and update gitignore
+     - Document payment module structure
+     - Ignore generated config files
+
+────────────────────────────────────────────────
 ```
 
 ---
@@ -81,7 +104,7 @@ Select a commit message:
 
 ### patchwise commit
 
-Generate and create a commit from staged changes.
+Generate suggestions and create a commit from staged changes.
 
 ```bash
 patchwise commit
@@ -121,9 +144,19 @@ patchwise stage
 
 ---
 
+### patchwise setup
+
+Run the interactive setup wizard to configure your AI provider, model, and API key.
+
+```bash
+patchwise setup
+```
+
+---
+
 ### patchwise config init
 
-Create a config file.
+Create a project config file.
 
 ```bash
 patchwise config init
@@ -139,6 +172,7 @@ patchwise config init
 GROQ_API_KEY=xxx
 PATCHWISE_PROVIDER=groq
 PATCHWISE_MODEL=llama-3.3-70b-versatile
+PATCHWISE_LANGUAGE=en
 ```
 
 ---
@@ -155,9 +189,18 @@ Create `patchwise.config.json`:
   "language": "en",
   "maxSubjectLength": 72,
   "confirmBeforeCommit": true,
-  "confirmBeforePush": true
+  "confirmBeforePush": true,
+  "scopeStrategy": "auto"
 }
 ```
+
+### scopeStrategy
+
+Controls how commit scopes are handled:
+
+* `"auto"` — AI infers the scope from the diff (default)
+* `"manual"` — you provide a scope via `--scope`
+* `"none"` — no scope is included in commit messages
 
 ---
 
@@ -167,7 +210,11 @@ Patchwise generates commits following this format:
 
 ```txt
 type(scope): subject
+
+body (optional)
 ```
+
+Supported types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `build`, `ci`
 
 Examples:
 
@@ -176,6 +223,11 @@ feat(auth): add email verification flow
 fix(api): handle null company id
 refactor(ui): simplify sidebar logic
 docs(readme): update installation guide
+
+chore(config): update gitignore and add payment docs
+
+- Add .gitignore entries for build artifacts
+- Document Genuka Pay integration flow
 ```
 
 ---
@@ -184,7 +236,7 @@ docs(readme): update installation guide
 
 Supported:
 
-* Groq
+* Groq (with live model selection)
 
 Planned:
 
@@ -199,9 +251,10 @@ Planned:
 ```
 CLI
  ├── Git Layer
- ├── AI Layer
- ├── Commit Engine
- └── UI Layer
+ ├── AI Layer (provider-agnostic)
+ ├── Commit Engine (diff, format, truncation)
+ ├── Config System (env + project + user)
+ └── UI Layer (colors, prompts, output)
 ```
 
 ---
@@ -212,6 +265,7 @@ CLI
 * No push without confirmation unless explicitly requested
 * API keys are not stored in the project
 * Only staged changes are used by default
+* Smart diff truncation prevents token limit errors
 
 ---
 
@@ -235,35 +289,23 @@ Build:
 pnpm build
 ```
 
----
+Lint + typecheck:
 
-## Roadmap
+```bash
+pnpm check:ci
+```
 
-V1:
+Tests:
 
-* commit suggestions
-* commit execution
-* Groq integration
-* file selection
-
-V1.1:
-
-* push support
-* commit body generation
-* language support
-
-V2:
-
-* hunk selection
-* multi-commit split
-* multi-provider support
-* local AI
+```bash
+pnpm test
+```
 
 ---
 
 ## Contributing
 
-Contributions are welcome.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 * open an issue
 * submit a pull request
