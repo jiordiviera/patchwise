@@ -30,14 +30,16 @@ export async function generateSuggestionsFromDiff(
 
   return {
     ...result,
-    suggestions: result.suggestions.map((suggestion) =>
-      normalizeSuggestion(
-        suggestion,
-        config.maxSubjectLength,
-        options?.scope,
-        options?.noScope,
-      ),
-    ),
+    suggestions: result.suggestions
+      .map((suggestion) =>
+        normalizeSuggestion(
+          suggestion,
+          config.maxSubjectLength,
+          options?.scope,
+          options?.noScope,
+        ),
+      )
+      .slice(0, 3),
   };
 }
 

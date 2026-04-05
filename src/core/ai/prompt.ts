@@ -29,6 +29,9 @@ export function buildPrompt(input: SuggestCommitInput): string {
     `- Files involved: ${input.fileNames.join(", ") || "unknown"}.`,
     "Diff:",
     input.diff,
+    input.diff.includes("[diff truncated")
+      ? "\nNote: the diff was truncated to fit token limits. Use the file list and stat summary to infer the full scope."
+      : "",
   ].join("\n");
 }
 
