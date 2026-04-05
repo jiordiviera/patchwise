@@ -7,6 +7,7 @@ import { runSuggestCommand } from "@/cli/commands/suggest";
 import type { CommandContext } from "@/cli/context";
 import { loadConfig } from "@/core/config/load-config";
 import type { CommitCommandOptions, ProviderName } from "@/types";
+import { version } from "../../package.json";
 
 export async function createProgram(cwd = process.cwd()): Promise<Command> {
   const context: CommandContext = { cwd, config: await loadConfig(cwd) };
@@ -16,7 +17,7 @@ export async function createProgram(cwd = process.cwd()): Promise<Command> {
   program
     .name("patchwise")
     .description("AI-assisted Git commits with explicit human validation.")
-    .version("0.1.0");
+    .version(version);
 
   program
     .command("suggest")
