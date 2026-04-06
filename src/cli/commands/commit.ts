@@ -14,13 +14,13 @@ import {
   printCancelled,
   printCommitCreated,
   printPushed,
-  printSuggestionResult,
 } from "@/core/ui/output";
 import {
   confirmAction,
   promptForFiles,
   promptForSuggestion,
 } from "@/core/ui/prompts";
+import { formatCommitMessageWithBody } from "@/core/commit/format";
 import type { CommitCommandOptions } from "@/types";
 
 export async function runCommitCommand(
@@ -70,9 +70,9 @@ export async function runCommitCommand(
     noScope: options.noScope,
   });
 
-  printSuggestionResult(result);
-
-  const message = await promptForSuggestion(result.suggestions);
+  const message = options.yes
+    ? formatCommitMessageWithBody(result.suggestions[0])
+    : await promptForSuggestion(result.suggestions);
   const shouldCommit =
     options.yes ||
     !config.confirmBeforeCommit ||

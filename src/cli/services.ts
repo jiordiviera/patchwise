@@ -39,7 +39,7 @@ export async function generateSuggestionsFromDiff(
           options?.noScope,
         ),
       )
-      .slice(0, 3),
+      .slice(0, 2),
   };
 }
 
