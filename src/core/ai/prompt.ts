@@ -2,37 +2,24 @@ import type { SuggestCommitInput } from "@/types";
 
 export function buildPrompt(input: SuggestCommitInput): string {
   const categories = categorizeFiles(input.fileNames);
-  const categoryList = Array.from(categories).join(", ");
 
   return [
-    "You generate Conventional Commit messages from a Git diff.",
-    "Return strict JSON only.",
-    "The JSON shape must be:",
-    '{"summary":"string","suggestions":[{"type":"feat","scope":"optional","subject":"string","body":"optional string"}]}',
+    "Generate Conventional Commit messages from this diff. Return JSON only.",
+    `Format: {"summary":"string","suggestions":[{"type":"feat","scope?":"string","subject":"string","body?":"string"}]}`,
     "Rules:",
-    "- EVERY suggestion must cover ALL changes in the diff, never just a subset.",
-    "- The body should list each change group as bullet points.",
-    `- This diff touches these areas: ${categoryList}.`,
-    "",
-    "Suggestion 1 — Primary: the most accurate type/scope for the full change.",
-    "Suggestion 2 — Alternative angle: use a different type or scope that also fits.",
-    "Suggestion 3 — Broad: a higher-level framing that encompasses everything.",
-    "",
-    "Each suggestion must have a DISTINCT type, scope, or subject. No rephrasing.",
-    "- Subjects must be imperative, concise, and lower-case.",
-    `- Subject max length: ${input.maxSubjectLength}.`,
-    `- Language: ${input.language}.`,
-    `- Scope strategy: ${input.scopeStrategy}.`,
-    input.scope
-      ? `- Preferred scope: ${input.scope}.`
-      : "- Preferred scope: infer only if obvious.",
-    `- Files involved: ${input.fileNames.join(", ") || "unknown"}.`,
+    "- Each suggestion covers ALL changes, never a subset.",
+    "- Body: brief bullet points grouping changes by area.",
+    `- Areas: ${Array.from(categories).join(", ") || "unknown"}.`,
+    `- Files: ${input.fileNames.join(", ") || "unknown"}.`,
+    "- Return 2 suggestions with distinct types or scopes.",
+    `- Subject: imperative, lower-case, max ${input.maxSubjectLength} chars.`,
+    input.scope ? `- Scope: ${input.scope}.` : "",
+    input.diff.includes("[diff truncated")
+      ? "Note: diff was truncated. Use the file list to infer full scope."
+      : "",
     "Diff:",
     input.diff,
-    input.diff.includes("[diff truncated")
-      ? "\nNote: the diff was truncated to fit token limits. Use the file list and stat summary to infer the full scope."
-      : "",
-  ].join("\n");
+  ].filter(Boolean).join("\n");
 }
 
 function categorizeFiles(files: string[]): Set<string> {

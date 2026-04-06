@@ -1,4 +1,4 @@
-export function truncateDiff(diff: string, maxChars = 8_000): string {
+export function truncateDiff(diff: string, maxChars = 4_000): string {
   if (diff.length <= maxChars) {
     return diff;
   }

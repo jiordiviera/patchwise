@@ -67,5 +67,5 @@ export const suggestionSchema = z.object({
 
 export const providerResponseSchema = z.object({
   summary: z.string().min(1),
-  suggestions: z.array(suggestionSchema).min(1).max(10),
+  suggestions: z.array(suggestionSchema).min(1).max(3),
 });
