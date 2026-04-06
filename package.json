@@ -1,6 +1,6 @@
 {
   "name": "patchwise",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "AI-assisted Git commits, with the developer still in charge.",
   "type": "module",
   "engines": {
