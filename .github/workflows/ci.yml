@@ -41,10 +41,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
     permissions:
-      contents: read # recommandé
-      id-token: write # obligatoire pour OIDC
+      contents: read
+      id-token: write # Obligatoire pour OIDC
       pull-requests: write
 
     steps:
@@ -59,17 +58,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      - name: Update npm to latest (critique pour OIDC)
+        run: npm install -g npm@latest
 
       - name: Create Release Pull Request or Publish
         uses: changesets/action@v1
         with:
           publish: pnpm release
-          commit: "chore: version packages"
-          title: "chore: version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Aucun NPM_TOKEN n'est nécessaire avec Trusted Publishing
