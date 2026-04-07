@@ -1,11 +1,15 @@
 import { Command } from "commander";
+import chalk from "chalk";
 
 import { runCommitCommand } from "@/cli/commands/commit";
 import { runConfigInitCommand, runSetupCommand } from "@/cli/commands/config";
 import { runStageCommand } from "@/cli/commands/stage";
 import { runSuggestCommand } from "@/cli/commands/suggest";
 import type { CommandContext } from "@/cli/context";
+import type { VersionCheck } from "@/core/cli/update";
+import { checkForUpdates, getUpdateCommand, runUpdate } from "@/core/cli/update";
 import { loadConfig } from "@/core/config/load-config";
+import { confirmAction } from "@/core/ui/prompts";
 import type { CommitCommandOptions, ProviderName } from "@/types";
 import { version } from "../../package.json";
 
@@ -18,7 +22,6 @@ export async function createProgram(cwd = process.cwd()): Promise<Command> {
     .name("patchwise")
     .description("AI-assisted Git commits with explicit human validation.")
     .version(version);
-  
 
   program
     .command("suggest")
@@ -73,6 +76,9 @@ export async function createProgram(cwd = process.cwd()): Promise<Command> {
       return;
     }
 
+    // Check for updates in background
+    const updateCheck = checkForUpdates();
+
     context.config = await loadConfig(cwd);
 
     if (context.config.onboardingComplete && context.config.groqApiKey) {
@@ -81,7 +87,53 @@ export async function createProgram(cwd = process.cwd()): Promise<Command> {
 
     await runSetupCommand(context, { silentWhenNonInteractive: true });
     context.config = await loadConfig(cwd);
+
+    // Prompt for update after setup is done
+    await handleUpdatePrompt(updateCheck);
   });
+
+  async function handleUpdatePrompt(
+    updateCheck: Promise<VersionCheck>,
+  ): Promise<void> {
+    try {
+      const result = await updateCheck;
+      if (!result.updateAvailable) return;
+
+      console.log();
+      console.log(
+        chalk.dim(
+          `  Update available: ${chalk.green(result.latest)} (current: ${result.current})`,
+        ),
+      );
+
+      if (process.stdin.isTTY && process.stdout.isTTY) {
+        const shouldUpdate = await confirmAction(
+          `Update to v${result.latest}?`,
+          true,
+        );
+
+        if (shouldUpdate) {
+          console.log(chalk.dim(`  Running: ${getUpdateCommand(result.packageManager)}`));
+          const success = await runUpdate(result.packageManager);
+          if (success) {
+            console.log(chalk.green("  ✔ patchwise updated successfully."));
+          } else {
+            console.log(
+              chalk.yellow(
+                `  Update failed. Run \`${getUpdateCommand(result.packageManager)}\` manually.`,
+              ),
+            );
+          }
+        }
+      } else {
+        console.log(
+          chalk.dim(`  Run \`${getUpdateCommand(result.packageManager)}\` to update.`),
+        );
+      }
+    } catch {
+      // Silently ignore update check failures
+    }
+  }
 
   return program;
 }
@@ -102,6 +154,11 @@ async function handleCommand(action: () => Promise<void>): Promise<void> {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error(`patchwise: ${message}`);
+    console.error();
+    console.error(`If this error persists, please report it:`);
+    console.error(
+      chalk.blue("  https://github.com/jiordiviera/patchwise/issues/new"),
+    );
     process.exitCode = 1;
   }
 }

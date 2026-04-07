@@ -19,7 +19,9 @@ export function buildPrompt(input: SuggestCommitInput): string {
       : "",
     "Diff:",
     input.diff,
-  ].filter(Boolean).join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 function categorizeFiles(files: string[]): Set<string> {
@@ -27,10 +29,21 @@ function categorizeFiles(files: string[]): Set<string> {
 
   for (const f of files) {
     if (f.startsWith("src/") || f.startsWith("lib/")) categories.add("code");
-    else if (f.startsWith("test/") || f.startsWith("tests/") || f.startsWith("spec/")) categories.add("test");
+    else if (
+      f.startsWith("test/") ||
+      f.startsWith("tests/") ||
+      f.startsWith("spec/")
+    )
+      categories.add("test");
     else if (f.startsWith("docs/") || f.endsWith(".md")) categories.add("docs");
-    else if (f.includes(".config.") || f.endsWith("rc") || f.endsWith(".json")) categories.add("config");
-    else if (f.startsWith(".github/") || f.endsWith(".yml") || f.endsWith(".yaml")) categories.add("ci");
+    else if (f.includes(".config.") || f.endsWith("rc") || f.endsWith(".json"))
+      categories.add("config");
+    else if (
+      f.startsWith(".github/") ||
+      f.endsWith(".yml") ||
+      f.endsWith(".yaml")
+    )
+      categories.add("ci");
     else categories.add("other");
   }
 

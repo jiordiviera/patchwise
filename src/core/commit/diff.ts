@@ -15,12 +15,18 @@ export function truncateDiff(diff: string, maxChars = 4_000): string {
   let result = `Files changed: ${files.length}\n${statLines.join("\n")}\n\n`;
 
   // Add truncated diffs, limiting lines per file
-  const maxLinesPerFile = Math.max(10, Math.floor((maxChars - result.length) / files.length / 6));
+  const maxLinesPerFile = Math.max(
+    10,
+    Math.floor((maxChars - result.length) / files.length / 6),
+  );
 
   for (const file of files) {
     const header = `--- ${file.path} ---`;
     const lines = file.diffLines.slice(0, maxLinesPerFile);
-    const truncated = file.diffLines.length > maxLinesPerFile ? `\n[... ${file.diffLines.length - maxLinesPerFile} more lines]` : "";
+    const truncated =
+      file.diffLines.length > maxLinesPerFile
+        ? `\n[... ${file.diffLines.length - maxLinesPerFile} more lines]`
+        : "";
     const fileBlock = `${header}\n${lines.join("\n")}${truncated}\n`;
 
     if (result.length + fileBlock.length > maxChars) {
