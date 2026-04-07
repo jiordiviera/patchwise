@@ -5,7 +5,9 @@ export function formatCommitMessage(suggestion: CommitSuggestion): string {
   return `${suggestion.type}${scope}: ${suggestion.subject}`;
 }
 
-export function formatCommitMessageWithBody(suggestion: CommitSuggestion): string {
+export function formatCommitMessageWithBody(
+  suggestion: CommitSuggestion,
+): string {
   const header = formatCommitMessage(suggestion);
   if (!suggestion.body) return header;
   return `${header}\n\n${suggestion.body}`;

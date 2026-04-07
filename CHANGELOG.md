@@ -1,5 +1,23 @@
 # patchwise
 
+## 1.2.0
+
+### Minor Changes
+
+- ### Features
+  - **CI/CD support**: `--yes` auto-selects the first suggestion and commits without TTY
+  - **Smart diff truncation**: Large diffs are truncated with file stats to prevent 413 errors
+  - **Groq model selection**: Setup fetches live model list from Groq API
+  - **Commit body support**: Suggestions include detailed bullet points grouping changes
+  - **Auto-update detection**: CLI detects new versions and prompts to update via detected package manager (npm, pnpm, yarn, bun)
+
+  ### Improvements
+  - **Compact prompt**: Reduced token usage by ~50% for Groq free tier compatibility
+  - **Streamlined UI output**: Only shows suggestions with type badges, no verbose headers
+  - **Version from package.json**: CLI version read dynamically instead of hardcoded
+  - **Type coercion**: Invalid AI types (e.g. "bugfix", "feature") auto-corrected
+  - **Better error UX**: Error messages now include GitHub issue link instead of raw JSON
+
 ## 1.1.0
 
 ### Minor Changes

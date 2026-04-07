@@ -62,7 +62,20 @@ export const suggestionSchema = z.object({
     .optional()
     .transform((v) => (v && v.trim().length > 0 ? v.trim() : undefined)),
   subject: z.string().min(1),
-  body: z.string().optional(),
+  // AI sometimes returns body as array of strings instead of a single string.
+  // Accept any shape and normalize it.
+  body: z
+    .any()
+    .optional()
+    .transform((v) => {
+      if (!v) return undefined;
+      if (typeof v === "string") return v.trim() || undefined;
+      if (Array.isArray(v)) {
+        const joined = v.filter(Boolean).join("\n").trim();
+        return joined || undefined;
+      }
+      return undefined;
+    }),
 });
 
 export const providerResponseSchema = z.object({
