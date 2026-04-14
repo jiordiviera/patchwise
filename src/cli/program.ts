@@ -7,8 +7,14 @@ import { runStageCommand } from "@/cli/commands/stage";
 import { runSuggestCommand } from "@/cli/commands/suggest";
 import type { CommandContext } from "@/cli/context";
 import type { VersionCheck } from "@/core/cli/update";
-import { checkForUpdates, getUpdateCommand, runUpdate } from "@/core/cli/update";
+import {
+  checkForUpdates,
+  getUpdateCommand,
+  runUpdate,
+} from "@/core/cli/update";
 import { loadConfig } from "@/core/config/load-config";
+import { toAppError } from "@/core/errors/app-error";
+import { printAppError } from "@/core/ui/output";
 import { confirmAction } from "@/core/ui/prompts";
 import type { CommitCommandOptions, ProviderName } from "@/types";
 import { version } from "../../package.json";
@@ -113,7 +119,9 @@ export async function createProgram(cwd = process.cwd()): Promise<Command> {
         );
 
         if (shouldUpdate) {
-          console.log(chalk.dim(`  Running: ${getUpdateCommand(result.packageManager)}`));
+          console.log(
+            chalk.dim(`  Running: ${getUpdateCommand(result.packageManager)}`),
+          );
           const success = await runUpdate(result.packageManager);
           if (success) {
             console.log(chalk.green("  ✔ patchwise updated successfully."));
@@ -127,7 +135,9 @@ export async function createProgram(cwd = process.cwd()): Promise<Command> {
         }
       } else {
         console.log(
-          chalk.dim(`  Run \`${getUpdateCommand(result.packageManager)}\` to update.`),
+          chalk.dim(
+            `  Run \`${getUpdateCommand(result.packageManager)}\` to update.`,
+          ),
         );
       }
     } catch {
@@ -152,8 +162,8 @@ async function handleCommand(action: () => Promise<void>): Promise<void> {
   try {
     await action();
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error(`patchwise: ${message}`);
+    const appError = toAppError(error);
+    printAppError(appError);
     console.error();
     console.error(`If this error persists, please report it:`);
     console.error(

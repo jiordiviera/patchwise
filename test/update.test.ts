@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  getUpdateCommand,
-  isNewer as checkIsNewer,
-} from "@/core/cli/update";
+import { getUpdateCommand, isNewer as checkIsNewer } from "@/core/cli/update";
 
 describe("update helpers", () => {
   describe("getUpdateCommand", () => {

@@ -13,8 +13,15 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
-      include: ["src", "test", "tsup.config.ts"],
-      exclude: [...configDefaults.exclude, "src/**"],
+      include: ["src/**/*.ts"],
+      exclude: [
+        ...configDefaults.exclude,
+        "dist/**",
+        "test/**",
+        "tsup.config.ts",
+        "vitest.config.ts",
+        "eslint.config.ts",
+      ],
     },
   },
 });

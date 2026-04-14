@@ -1,5 +1,9 @@
 # Patchwise
 
+[![npm version](https://img.shields.io/npm/v/patchwise)](https://www.npmjs.com/package/patchwise)
+[![npm downloads](https://img.shields.io/npm/dm/patchwise)](https://www.npmjs.com/package/patchwise)
+![tests](https://img.shields.io/badge/tests-42%20passing-brightgreen)
+
 AI-assisted Git commits, with you still in charge.
 
 Patchwise is a CLI tool that helps developers turn raw Git changes into clean, structured, and meaningful commits using AI assistance.
@@ -24,16 +28,18 @@ It analyzes your diff, suggests commit messages with detailed bodies, and guides
 
 ---
 
-## Installation
+## Use Without Installing
 
 ```bash
-npm install -g patchwise
+npx patchwise@latest setup
 ```
 
-or
+```bash
+pnpm dlx patchwise@latest setup
+```
 
 ```bash
-pnpm add -g patchwise
+bunx --bun patchwise@latest setup
 ```
 
 ---
@@ -43,7 +49,7 @@ pnpm add -g patchwise
 ### 1. Run setup
 
 ```bash
-patchwise setup
+npx patchwise@latest setup
 ```
 
 This interactive wizard will:
@@ -66,7 +72,15 @@ git add .
 ### 3. Generate and commit
 
 ```bash
-patchwise commit
+npx patchwise@latest commit
+```
+
+You can use the same pattern for every command:
+
+```bash
+npx patchwise@latest suggest
+pnpm dlx patchwise@latest stage
+bunx --bun patchwise@latest commit --yes
 ```
 
 ---
@@ -74,7 +88,7 @@ patchwise commit
 ## Example
 
 ```bash
-patchwise commit
+npx patchwise@latest commit
 ```
 
 ```
@@ -107,7 +121,7 @@ patchwise commit
 Generate suggestions and create a commit from staged changes.
 
 ```bash
-patchwise commit
+npx patchwise@latest commit
 ```
 
 Options:
@@ -129,7 +143,7 @@ Options:
 Generate commit suggestions without committing.
 
 ```bash
-patchwise suggest
+npx patchwise@latest suggest
 ```
 
 ---
@@ -139,7 +153,7 @@ patchwise suggest
 Interactively select files to stage.
 
 ```bash
-patchwise stage
+npx patchwise@latest stage
 ```
 
 ---
@@ -149,7 +163,7 @@ patchwise stage
 Run the interactive setup wizard to configure your AI provider, model, and API key.
 
 ```bash
-patchwise setup
+npx patchwise@latest setup
 ```
 
 ---
@@ -159,7 +173,7 @@ patchwise setup
 Create a project config file.
 
 ```bash
-patchwise config init
+npx patchwise@latest config init
 ```
 
 ---

@@ -1,4 +1,5 @@
 import { GroqAIProvider } from "@/core/ai/providers/groq";
+import { AppError } from "@/core/errors/app-error";
 import type { AIProvider, AppConfig } from "@/types";
 
 export function createAIProvider(config: AppConfig): AIProvider {
@@ -6,13 +7,19 @@ export function createAIProvider(config: AppConfig): AIProvider {
     const apiKey = config.groqApiKey;
 
     if (!apiKey) {
-      throw new Error(
-        "Missing Groq API key. Run `patchwise setup` to configure it.",
-      );
+      throw new AppError({
+        code: "MISSING_API_KEY",
+        message: "Missing Groq API key.",
+        hint: "Run `patchwise setup` to configure it.",
+      });
     }
 
     return new GroqAIProvider(apiKey, config.model);
   }
 
-  throw new Error(`Unsupported provider: ${config.provider}`);
+  throw new AppError({
+    code: "UNSUPPORTED_PROVIDER",
+    message: `Unsupported provider: ${config.provider}`,
+    hint: "Select a supported provider in your config or via `patchwise setup`.",
+  });
 }

@@ -10,6 +10,7 @@ import {
   stageAll,
   stageFiles,
 } from "@/core/git/client";
+import { AppError } from "@/core/errors/app-error";
 import {
   printCancelled,
   printCommitCreated,
@@ -37,13 +38,21 @@ export async function runCommitCommand(
     const files = await getModifiedFiles(context.cwd);
 
     if (files.length === 0) {
-      throw new Error("No modified files found.");
+      throw new AppError({
+        code: "NO_MODIFIED_FILES",
+        message: "No modified files found.",
+        hint: "Edit a file first or run the command in the correct repository.",
+      });
     }
 
     const selected = await promptForFiles(files);
 
     if (selected.length === 0) {
-      throw new Error("No files selected for staging.");
+      throw new AppError({
+        code: "NO_SELECTED_FILES",
+        message: "No files selected for staging.",
+        hint: "Select at least one file or run without `--select`.",
+      });
     }
 
     await stageFiles(selected, context.cwd);
@@ -52,9 +61,11 @@ export async function runCommitCommand(
   const diff = await getStagedDiff(context.cwd);
 
   if (!diff) {
-    throw new Error(
-      "No staged changes found. Stage files before running commit.",
-    );
+    throw new AppError({
+      code: "NO_STAGED_CHANGES",
+      message: "No staged changes found.",
+      hint: "Stage files before running `patchwise commit`.",
+    });
   }
 
   const config = {

@@ -1,4 +1,5 @@
 import type { CommandContext } from "@/cli/context";
+import { AppError } from "@/core/errors/app-error";
 import {
   initConfigFile,
   loadConfig,
@@ -22,9 +23,11 @@ export async function runSetupCommand(
       return;
     }
 
-    throw new Error(
-      "Interactive setup requires a TTY. Run `patchwise setup` in a terminal.",
-    );
+    throw new AppError({
+      code: "TTY_REQUIRED",
+      message: "Interactive setup requires a TTY.",
+      hint: "Run `patchwise setup` directly in a terminal session.",
+    });
   }
 
   const currentConfig = await loadConfig(context.cwd);

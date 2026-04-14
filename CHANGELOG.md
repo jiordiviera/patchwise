@@ -1,5 +1,16 @@
 # patchwise
 
+## 1.3.0
+
+### Minor Changes
+
+- Improve CLI error handling and onboarding guidance.
+  - add structured, actionable error messages for Git, setup, and Groq API failures
+  - improve error output with hints and contextual details instead of raw failures
+  - update the README to prefer ephemeral usage via `npx`, `pnpm dlx`, and `bunx`
+  - add npm version/download badges and a test status badge to the README
+  - increase automated test coverage across CLI commands, Git integration, providers, config flows, and output helpers
+
 ## 1.2.0
 
 ### Minor Changes
