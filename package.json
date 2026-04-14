@@ -65,6 +65,7 @@
     "@eslint/json": "^1.2.0",
     "@eslint/markdown": "^8.0.1",
     "@types/node": "^25.5.2",
+    "@vitest/coverage-v8": "4.1.2",
     "eslint": "^10.2.0",
     "globals": "^17.4.0",
     "jiti": "^2.6.1",
