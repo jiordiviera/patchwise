@@ -101,7 +101,10 @@ function mapGitError(message: string, cause: unknown): AppError {
     });
   }
 
-  if (message.includes("could not read Username") || message.includes("Authentication failed")) {
+  if (
+    message.includes("could not read Username") ||
+    message.includes("Authentication failed")
+  ) {
     return new AppError({
       code: "GIT_AUTH_FAILED",
       message: "Git authentication failed while talking to the remote.",
@@ -110,7 +113,10 @@ function mapGitError(message: string, cause: unknown): AppError {
     });
   }
 
-  if (message.includes("src refspec") || message.includes("has no upstream branch")) {
+  if (
+    message.includes("src refspec") ||
+    message.includes("has no upstream branch")
+  ) {
     return new AppError({
       code: "GIT_PUSH_FAILED",
       message: "Push failed because the current branch is not ready for push.",

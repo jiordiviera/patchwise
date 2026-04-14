@@ -77,7 +77,11 @@ async function detectPackageManager(): Promise<string> {
   if (npmGlobal) {
     if (fileExists(path.join(npmGlobal, "pnpm-lock.yaml"))) return "pnpm";
     if (fileExists(path.join(npmGlobal, "yarn.lock"))) return "yarn";
-    if (fileExists(path.join(npmGlobal, "bun.lockb")) || fileExists(path.join(npmGlobal, "bun.lock"))) return "bun";
+    if (
+      fileExists(path.join(npmGlobal, "bun.lockb")) ||
+      fileExists(path.join(npmGlobal, "bun.lock"))
+    )
+      return "bun";
   }
 
   try {
@@ -94,7 +98,9 @@ async function detectPackageManager(): Promise<string> {
 
 async function getCurrentVersion(): Promise<string> {
   try {
-    const { version } = (await import("../../../package.json")) as { version: string };
+    const { version } = (await import("../../../package.json")) as {
+      version: string;
+    };
     return version;
   } catch {
     return "unknown";

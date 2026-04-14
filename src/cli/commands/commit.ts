@@ -10,9 +10,7 @@ import {
   stageAll,
   stageFiles,
 } from "@/core/git/client";
-import {
-  AppError,
-} from "@/core/errors/app-error";
+import { AppError } from "@/core/errors/app-error";
 import {
   printCancelled,
   printCommitCreated,

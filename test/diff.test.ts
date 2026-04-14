@@ -12,7 +12,10 @@ diff --git a/package.json b/package.json
 --- a/package.json
 +++ b/package.json`;
 
-      expect(extractFileNamesFromDiff(diff)).toEqual(["src/index.ts", "package.json"]);
+      expect(extractFileNamesFromDiff(diff)).toEqual([
+        "src/index.ts",
+        "package.json",
+      ]);
     });
 
     it("returns empty array for no files", () => {
