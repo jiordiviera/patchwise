@@ -9,6 +9,8 @@ import type { CommandContext } from "@/cli/context";
 import type { VersionCheck } from "@/core/cli/update";
 import { checkForUpdates, getUpdateCommand, runUpdate } from "@/core/cli/update";
 import { loadConfig } from "@/core/config/load-config";
+import { toAppError } from "@/core/errors/app-error";
+import { printAppError } from "@/core/ui/output";
 import { confirmAction } from "@/core/ui/prompts";
 import type { CommitCommandOptions, ProviderName } from "@/types";
 import { version } from "../../package.json";
@@ -152,8 +154,8 @@ async function handleCommand(action: () => Promise<void>): Promise<void> {
   try {
     await action();
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error(`patchwise: ${message}`);
+    const appError = toAppError(error);
+    printAppError(appError);
     console.error();
     console.error(`If this error persists, please report it:`);
     console.error(

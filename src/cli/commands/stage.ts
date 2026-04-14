@@ -1,4 +1,5 @@
 import type { CommandContext } from "@/cli/context";
+import { AppError } from "@/core/errors/app-error";
 import {
   assertGitRepository,
   getModifiedFiles,
@@ -12,7 +13,11 @@ export async function runStageCommand(context: CommandContext): Promise<void> {
   const files = await getModifiedFiles(context.cwd);
 
   if (files.length === 0) {
-    throw new Error("No modified files found.");
+    throw new AppError({
+      code: "NO_MODIFIED_FILES",
+      message: "No modified files found.",
+      hint: "Edit a file first or check that you are in the right repository.",
+    });
   }
 
   const selected = await promptForFiles(files);

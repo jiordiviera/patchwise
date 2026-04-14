@@ -1,6 +1,7 @@
 import chalk from "chalk";
 
 import { formatCommitMessage } from "@/core/commit/format";
+import type { AppError } from "@/core/errors/app-error";
 import type { CommitSuggestion, SuggestionResult } from "@/types";
 
 const BORDER = "─";
@@ -76,6 +77,21 @@ export function printWarning(message: string): void {
 
 export function printError(message: string): void {
   console.error(`  ${chalk.red("✖")} ${chalk.red(message)}`);
+}
+
+export function printAppError(error: AppError): void {
+  printError(error.message);
+
+  if (error.hint) {
+    console.error(`  ${chalk.yellow("→")} ${chalk.yellow(error.hint)}`);
+  }
+
+  if (error.details && error.details.length > 0) {
+    console.error();
+    error.details.forEach((detail) => {
+      console.error(`    ${chalk.dim(detail)}`);
+    });
+  }
 }
 
 export function printCommitCreated(message: string, branch?: string): void {
