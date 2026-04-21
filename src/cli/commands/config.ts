@@ -10,8 +10,14 @@ import { promptForSetup } from "@/core/ui/prompts";
 export async function runConfigInitCommand(
   context: CommandContext,
 ): Promise<void> {
-  const configPath = await initConfigFile(context.cwd);
-  console.log(`Config ready at ${configPath}`);
+  const result = await initConfigFile(context.cwd);
+
+  if (result.created) {
+    console.log(`Created config at ${result.path}`);
+    return;
+  }
+
+  console.log(`Config already exists at ${result.path}`);
 }
 
 export async function runSetupCommand(

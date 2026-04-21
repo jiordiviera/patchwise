@@ -30,11 +30,25 @@ describe("config", () => {
 
   it("creates the default config file", async () => {
     const dir = await makeTempDir();
-    const filePath = await initConfigFile(dir);
+    const result = await initConfigFile(dir);
+    const filePath = result.path;
     const content = await readFile(filePath, "utf8");
 
+    expect(result.created).toBe(true);
     expect(path.basename(filePath)).toBe("patchwise.config.json");
     expect(content).toContain('"provider": "groq"');
+  });
+
+  it("does not overwrite an existing config file", async () => {
+    const dir = await makeTempDir();
+    const first = await initConfigFile(dir);
+    const second = await initConfigFile(dir);
+
+    expect(first.created).toBe(true);
+    expect(second).toEqual({
+      path: first.path,
+      created: false,
+    });
   });
 
   it("resolves a user config path", () => {

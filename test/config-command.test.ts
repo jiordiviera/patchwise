@@ -50,7 +50,10 @@ describe("config command", () => {
       value: true,
       configurable: true,
     });
-    initConfigFileMock.mockResolvedValue("/repo/patchwise.config.json");
+    initConfigFileMock.mockResolvedValue({
+      path: "/repo/patchwise.config.json",
+      created: true,
+    });
     loadConfigMock.mockResolvedValue(context.config);
     promptForSetupMock.mockResolvedValue({
       provider: "groq",
@@ -76,7 +79,18 @@ describe("config command", () => {
     await runConfigInitCommand(context);
 
     expect(initConfigFileMock).toHaveBeenCalledWith("/repo");
-    expect(logSpy).toHaveBeenCalledWith("Config ready at /repo/patchwise.config.json");
+    expect(logSpy).toHaveBeenCalledWith("Created config at /repo/patchwise.config.json");
+  });
+
+  it("reports when the project config already exists", async () => {
+    initConfigFileMock.mockResolvedValue({
+      path: "/repo/patchwise.config.json",
+      created: false,
+    });
+
+    await runConfigInitCommand(context);
+
+    expect(logSpy).toHaveBeenCalledWith("Config already exists at /repo/patchwise.config.json");
   });
 
   it("runs interactive setup and persists the user config", async () => {
@@ -94,6 +108,18 @@ describe("config command", () => {
     expect(logSpy).toHaveBeenCalledWith(
       "User config saved to /home/user/.config/patchwise/config.json",
     );
+  });
+
+  it("does not ask for replacement when setup is incomplete", async () => {
+    loadConfigMock.mockResolvedValue({
+      ...context.config,
+      groqApiKey: undefined,
+      onboardingComplete: false,
+    });
+
+    await runSetupCommand(context);
+
+    expect(promptForSetupMock).toHaveBeenCalled();
   });
 
   it("returns silently in non-interactive mode when allowed", async () => {
