@@ -17,6 +17,17 @@ describe("commit format helpers", () => {
     ).toBe("feat(auth): add login flow");
   });
 
+  it("formats a gitmoji-prefixed conventional commit message", () => {
+    expect(
+      formatCommitMessage({
+        emoji: "✨",
+        type: "feat",
+        scope: "config",
+        subject: "add schema support",
+      }),
+    ).toBe("✨ feat(config): add schema support");
+  });
+
   it("removes scope when disabled", () => {
     expect(
       applyScopeOverride(

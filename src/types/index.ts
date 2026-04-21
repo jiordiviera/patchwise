@@ -15,6 +15,7 @@ export type ProviderName = "groq";
 
 export interface CommitSuggestion {
   type: CommitType;
+  emoji?: string;
   scope?: string;
   subject: string;
   body?: string;
@@ -25,6 +26,11 @@ export interface SuggestionResult {
   suggestions: CommitSuggestion[];
 }
 
+export interface FewShotExample {
+  summary?: string;
+  commit: string;
+}
+
 export interface SuggestCommitInput {
   diff: string;
   fileNames: string[];
@@ -32,6 +38,11 @@ export interface SuggestCommitInput {
   scopeStrategy: ScopeStrategy;
   scope?: string;
   maxSubjectLength: number;
+  allowEmoji: boolean;
+  rules: string[];
+  allowedScopes: string[];
+  forbiddenPatterns: string[];
+  fewShotExamples: FewShotExample[];
 }
 
 export interface AppConfig {
@@ -40,11 +51,16 @@ export interface AppConfig {
   commitConvention: "conventional";
   language: Language;
   maxSubjectLength: number;
+  allowEmoji: boolean;
   confirmBeforeCommit: boolean;
   confirmBeforePush: boolean;
   scopeStrategy: ScopeStrategy;
   groqApiKey?: string;
   onboardingComplete?: boolean;
+  rules: string[];
+  allowedScopes: string[];
+  forbiddenPatterns: string[];
+  fewShotExamples: FewShotExample[];
 }
 
 export interface AIProvider {

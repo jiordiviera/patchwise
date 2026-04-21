@@ -60,5 +60,18 @@ diff --git a/file2.ts b/file2.ts
       expect(result).toContain("file1.ts");
       expect(result).toContain("file2.ts");
     });
+
+    it("never returns a diff longer than the requested max chars", () => {
+      const diff = Array.from({ length: 200 }, (_, index) => {
+        return `diff --git a/file${index}.ts b/file${index}.ts
++++ a/file${index}.ts
++${"x".repeat(100)}`;
+      }).join("\n");
+
+      const result = truncateDiff(diff, 500);
+
+      expect(result.length).toBeLessThanOrEqual(500);
+      expect(result).toContain("[diff truncated");
+    });
   });
 });

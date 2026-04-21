@@ -6,18 +6,35 @@ import { z } from "zod";
 import type { AppConfig, Language, ProviderName, ScopeStrategy } from "@/types";
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG } from "@/core/config/defaults";
 
+const stringArraySchema = z.array(z.string().min(1)).optional();
+
 const configSchema = z.object({
+  $schema: z.string().min(1).optional(),
   provider: z.literal("groq").optional(),
   model: z.string().min(1).optional(),
   commitConvention: z.literal("conventional").optional(),
   language: z.enum(["en", "fr"]).optional(),
   maxSubjectLength: z.number().int().positive().optional(),
+  allowEmoji: z.boolean().optional(),
   confirmBeforeCommit: z.boolean().optional(),
   confirmBeforePush: z.boolean().optional(),
   scopeStrategy: z.enum(["auto", "manual", "none"]).optional(),
   groqApiKey: z.string().min(1).optional(),
   onboardingComplete: z.boolean().optional(),
+  rules: stringArraySchema,
+  allowedScopes: stringArraySchema,
+  forbiddenPatterns: stringArraySchema,
+  fewShotExamples: z
+    .array(
+      z.object({
+        summary: z.string().min(1).optional(),
+        commit: z.string().min(1),
+      }),
+    )
+    .optional(),
 });
+
+type PartialConfig = Partial<AppConfig>;
 
 export async function loadConfig(cwd = process.cwd()): Promise<AppConfig> {
   const fileConfig = await loadProjectConfig(cwd);
@@ -37,6 +54,8 @@ export async function loadConfig(cwd = process.cwd()): Promise<AppConfig> {
       "PATCHWISE_LANGUAGE",
       fileConfig.language ?? userConfig.language ?? DEFAULT_CONFIG.language,
     ),
+    allowEmoji:
+      fileConfig.allowEmoji ?? userConfig.allowEmoji ?? DEFAULT_CONFIG.allowEmoji,
     groqApiKey:
       process.env.GROQ_API_KEY ??
       fileConfig.groqApiKey ??
@@ -45,6 +64,16 @@ export async function loadConfig(cwd = process.cwd()): Promise<AppConfig> {
       fileConfig.onboardingComplete ??
       userConfig.onboardingComplete ??
       DEFAULT_CONFIG.onboardingComplete,
+    rules: mergeStringArrays(userConfig.rules, fileConfig.rules),
+    allowedScopes: mergeAllowedScopes(userConfig, fileConfig),
+    forbiddenPatterns: mergeStringArrays(
+      userConfig.forbiddenPatterns,
+      fileConfig.forbiddenPatterns,
+    ),
+    fewShotExamples: [
+      ...(userConfig.fewShotExamples ?? []),
+      ...(fileConfig.fewShotExamples ?? []),
+    ],
   };
 }
 
@@ -82,7 +111,7 @@ export async function initConfigFile(
   };
 }
 
-export async function loadUserConfig(): Promise<Partial<AppConfig>> {
+export async function loadUserConfig(): Promise<PartialConfig> {
   const configPath = getUserConfigPath();
 
   try {
@@ -98,7 +127,7 @@ export async function loadUserConfig(): Promise<Partial<AppConfig>> {
 }
 
 export async function saveUserConfig(
-  config: Partial<AppConfig>,
+  config: PartialConfig,
 ): Promise<string> {
   const configPath = getUserConfigPath();
   await mkdir(path.dirname(configPath), { recursive: true });
@@ -128,7 +157,7 @@ export function getUserConfigPath(): string {
   return path.join(xdgConfigHome, "patchwise", "config.json");
 }
 
-async function loadProjectConfig(cwd: string): Promise<Partial<AppConfig>> {
+async function loadProjectConfig(cwd: string): Promise<PartialConfig> {
   const configPath = path.join(cwd, CONFIG_FILE_NAME);
 
   try {
@@ -141,6 +170,24 @@ async function loadProjectConfig(cwd: string): Promise<Partial<AppConfig>> {
   }
 
   return {};
+}
+
+function mergeStringArrays(
+  userValue: string[] | undefined,
+  projectValue: string[] | undefined,
+): string[] {
+  return [...new Set([...(userValue ?? []), ...(projectValue ?? [])])];
+}
+
+function mergeAllowedScopes(
+  userConfig: PartialConfig,
+  projectConfig: PartialConfig,
+): string[] {
+  if (projectConfig.allowedScopes && projectConfig.allowedScopes.length > 0) {
+    return [...new Set(projectConfig.allowedScopes)];
+  }
+
+  return [...new Set(userConfig.allowedScopes ?? [])];
 }
 
 function isMissingFile(error: unknown): boolean {

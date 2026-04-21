@@ -153,7 +153,7 @@ function sanitizeCommitOptions(
 ): CommitCommandOptions {
   return {
     ...options,
-    lang: options.lang === "fr" ? "fr" : "en",
+    lang: options.lang ? (options.lang === "fr" ? "fr" : "en") : undefined,
     provider: (options.provider ?? "groq") as ProviderName,
   };
 }

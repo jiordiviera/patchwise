@@ -76,6 +76,19 @@ describe("ai schemas", () => {
       }
     });
 
+    it("normalizes emoji when provided", () => {
+      const result = suggestionSchema.safeParse({
+        emoji: " ✨ ",
+        type: "feat",
+        subject: "add config",
+      });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.emoji).toBe("✨");
+      }
+    });
+
     it("handles empty string body", () => {
       const result = suggestionSchema.safeParse({
         type: "fix",

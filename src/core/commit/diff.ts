@@ -7,7 +7,7 @@ export function truncateDiff(diff: string, maxChars = 4_000): string {
   const files = parseDiffFiles(diff);
 
   if (files.length === 0) {
-    return diff.slice(0, maxChars) + "\n\n[diff truncated]";
+    return fitToLimit(`${diff.slice(0, maxChars)}\n\n[diff truncated]`, maxChars);
   }
 
   // Start with a stat summary
@@ -31,13 +31,13 @@ export function truncateDiff(diff: string, maxChars = 4_000): string {
 
     if (result.length + fileBlock.length > maxChars) {
       result += "\n[diff truncated — remaining files omitted]";
-      break;
+      return fitToLimit(result, maxChars);
     }
 
     result += fileBlock;
   }
 
-  return result;
+  return fitToLimit(result, maxChars);
 }
 
 interface ParsedFile {
@@ -86,4 +86,13 @@ export function extractFileNamesFromDiff(diff: string): string[] {
   }
 
   return [...fileNames];
+}
+
+function fitToLimit(value: string, maxChars: number): string {
+  if (value.length <= maxChars) {
+    return value;
+  }
+
+  const suffix = "\n[diff truncated]";
+  return `${value.slice(0, Math.max(0, maxChars - suffix.length))}${suffix}`;
 }

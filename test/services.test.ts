@@ -19,10 +19,15 @@ describe("generateSuggestionsFromDiff", () => {
     commitConvention: "conventional" as const,
     language: "en" as const,
     maxSubjectLength: 10,
+    allowEmoji: true,
     confirmBeforeCommit: true,
     confirmBeforePush: true,
     scopeStrategy: "auto" as const,
     groqApiKey: "secret",
+    rules: ["Use imperative mood"],
+    allowedScopes: ["auth", "api"],
+    forbiddenPatterns: ["wip"],
+    fewShotExamples: [{ commit: "feat(api): add webhook handler" }],
   };
 
   beforeEach(() => {
@@ -50,6 +55,11 @@ describe("generateSuggestionsFromDiff", () => {
         language: "en",
         scopeStrategy: "auto",
         maxSubjectLength: 10,
+        allowEmoji: true,
+        rules: ["Use imperative mood"],
+        allowedScopes: ["auth", "api"],
+        forbiddenPatterns: ["wip"],
+        fewShotExamples: [{ commit: "feat(api): add webhook handler" }],
       }),
     );
     expect(result.suggestions).toHaveLength(2);

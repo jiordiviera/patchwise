@@ -15,6 +15,11 @@ describe("groq provider", () => {
     language: "en" as const,
     scopeStrategy: "auto" as const,
     maxSubjectLength: 72,
+    allowEmoji: false,
+    rules: [],
+    allowedScopes: [],
+    forbiddenPatterns: [],
+    fewShotExamples: [],
   };
 
   beforeEach(() => {
@@ -32,7 +37,7 @@ describe("groq provider", () => {
               message: {
                 content: JSON.stringify({
                   summary: "summary",
-                  suggestions: [{ type: "feat", subject: "add feature" }],
+                  suggestions: [{ emoji: "✨", type: "feat", subject: "add feature" }],
                 }),
               },
             },
@@ -45,7 +50,15 @@ describe("groq provider", () => {
 
     await expect(provider.generateCommitSuggestions(input)).resolves.toEqual({
       summary: "summary",
-      suggestions: [{ type: "feat", subject: "add feature", scope: undefined, body: undefined }],
+      suggestions: [
+        {
+          emoji: "✨",
+          type: "feat",
+          subject: "add feature",
+          scope: undefined,
+          body: undefined,
+        },
+      ],
     });
   });
 
@@ -90,6 +103,33 @@ describe("groq provider", () => {
 
     await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
       code: "AI_RATE_LIMITED",
+    });
+  });
+
+  it("maps request-too-large failures to a diff-specific error", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 413,
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify({
+            error: {
+              message: "Request Entity Too Large",
+              type: "invalid_request_error",
+              code: "request_too_large",
+            },
+          }),
+        ),
+      }),
+    );
+
+    const provider = new GroqAIProvider("key", "model");
+
+    await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
+      code: "AI_REQUEST_TOO_LARGE",
+      message: "The staged diff is too large for Groq.",
+      hint: "Commit fewer files, use `patchwise commit --select`, or split this change into smaller commits.",
     });
   });
 

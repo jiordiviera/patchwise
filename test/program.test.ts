@@ -92,6 +92,28 @@ describe("program", () => {
     expect(runSuggestCommandMock).toHaveBeenCalled();
   });
 
+  it("does not override configured language when --lang is omitted", async () => {
+    const program = await createProgram("/repo");
+
+    await program.parseAsync(["node", "patchwise", "commit"]);
+
+    expect(runCommitCommandMock).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.not.objectContaining({ lang: "en" }),
+    );
+  });
+
+  it("passes explicit --lang to commit command", async () => {
+    const program = await createProgram("/repo");
+
+    await program.parseAsync(["node", "patchwise", "commit", "--lang", "fr"]);
+
+    expect(runCommitCommandMock).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({ lang: "fr" }),
+    );
+  });
+
   it("runs setup automatically when onboarding is incomplete", async () => {
     loadConfigMock
       .mockResolvedValueOnce({

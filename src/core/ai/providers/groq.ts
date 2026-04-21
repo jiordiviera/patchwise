@@ -24,7 +24,6 @@ export class GroqAIProvider implements AIProvider {
     input: SuggestCommitInput,
   ): Promise<SuggestionResult> {
     let response: Response;
-
     try {
       response = await fetch(GROQ_API_URL, {
         method: "POST",
@@ -135,6 +134,15 @@ function mapGroqApiError(status: number, body: string): AppError {
       code: "AI_RATE_LIMITED",
       message: "Groq rate limit reached.",
       hint: "Wait a bit and retry, or switch to a lighter model.",
+      details: detail ? [detail] : undefined,
+    });
+  }
+
+  if (status === 413) {
+    return new AppError({
+      code: "AI_REQUEST_TOO_LARGE",
+      message: "The staged diff is too large for Groq.",
+      hint: "Commit fewer files, use `patchwise commit --select`, or split this change into smaller commits.",
       details: detail ? [detail] : undefined,
     });
   }

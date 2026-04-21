@@ -57,6 +57,10 @@ function coerceCommitType(value: string): CommitType {
 
 export const suggestionSchema = z.object({
   type: z.string().transform(coerceCommitType),
+  emoji: z
+    .string()
+    .optional()
+    .transform((v) => (v && v.trim().length > 0 ? v.trim() : undefined)),
   scope: z
     .string()
     .optional()
