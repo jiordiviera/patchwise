@@ -1,5 +1,17 @@
 # patchwise
 
+## 1.4.0
+
+### Minor Changes
+
+- Add advanced project configuration rules for commit generation.
+  - extend `patchwise.config.json` with `rules`, `allowedScopes`, `forbiddenPatterns`, `fewShotExamples`, and `allowEmoji`
+  - merge global and project configuration while keeping existing config file paths unchanged
+  - inject language, emoji requirements, project rules, allowed scopes, forbidden patterns, and few-shot examples into the AI prompt
+  - support gitmoji-style suggestions through an explicit `emoji` field when `allowEmoji` is enabled
+  - add a published JSON Schema for `patchwise.config.json` and reference it from the project config example
+  - improve Groq 413 errors with a dedicated "diff too large" message and safer diff truncation
+
 ## 1.3.1
 
 ### Patch Changes
