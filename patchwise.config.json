@@ -1,0 +1,38 @@
+{
+  "$schema": "./schemas/patchwise.schema.json",
+  "language": "en",
+  "maxSubjectLength": 72,
+  "allowEmoji": true,
+  "scopeStrategy": "auto",
+  "rules": [
+    "Prefer precise scopes that match the touched layer",
+    "Mention user-facing CLI behavior when it changes",
+    "Do not describe tests as the main change unless the diff is test-only"
+  ],
+  "allowedScopes": [
+    "cli",
+    "config",
+    "ai",
+    "git",
+    "ui",
+    "docs",
+    "test",
+    "release"
+  ],
+  "forbiddenPatterns": [
+    "wip",
+    "misc",
+    "update stuff",
+    "changes"
+  ],
+  "fewShotExamples": [
+    {
+      "summary": "Improves setup behavior for existing user configuration",
+      "commit": "fix(config): preserve existing setup values by default"
+    },
+    {
+      "summary": "Adds project-specific commit rules to AI prompt generation",
+      "commit": "feat(config): inject project commit rules into prompts"
+    }
+  ]
+}

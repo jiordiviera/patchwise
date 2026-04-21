@@ -29,7 +29,6 @@ export async function runCommitCommand(
   options: CommitCommandOptions,
 ): Promise<void> {
   await assertGitRepository(context.cwd);
-
   if (options.all) {
     await stageAll(context.cwd);
   }
@@ -76,7 +75,7 @@ export async function runCommitCommand(
   };
 
   const result = await generateSuggestionsFromDiff(diff, config, {
-    language: options.lang,
+    language: config.language,
     scope: options.scope,
     noScope: options.noScope,
   });

@@ -6,10 +6,15 @@ export const DEFAULT_CONFIG: AppConfig = {
   commitConvention: "conventional",
   language: "en",
   maxSubjectLength: 72,
+  allowEmoji: false,
   confirmBeforeCommit: true,
   confirmBeforePush: true,
   scopeStrategy: "auto",
   onboardingComplete: false,
+  rules: [],
+  allowedScopes: [],
+  forbiddenPatterns: [],
+  fewShotExamples: [],
 };
 
 export const CONFIG_FILE_NAME = "patchwise.config.json";

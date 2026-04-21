@@ -16,10 +16,15 @@ describe("createAIProvider", () => {
       commitConvention: "conventional" as const,
       language: "en" as const,
       maxSubjectLength: 72,
+      allowEmoji: false,
       confirmBeforeCommit: true,
       confirmBeforePush: true,
       scopeStrategy: "auto" as const,
       groqApiKey: "secret",
+      rules: [],
+      allowedScopes: [],
+      forbiddenPatterns: [],
+      fewShotExamples: [],
     };
 
     createAIProvider(config);
@@ -34,9 +39,14 @@ describe("createAIProvider", () => {
       commitConvention: "conventional" as const,
       language: "en" as const,
       maxSubjectLength: 72,
+      allowEmoji: false,
       confirmBeforeCommit: true,
       confirmBeforePush: true,
       scopeStrategy: "auto" as const,
+      rules: [],
+      allowedScopes: [],
+      forbiddenPatterns: [],
+      fewShotExamples: [],
     };
 
     expect(() => createAIProvider(config)).toThrowError(/Missing Groq API key/);

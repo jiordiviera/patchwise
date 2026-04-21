@@ -32,11 +32,16 @@ describe("config command", () => {
       commitConvention: "conventional" as const,
       language: "en" as const,
       maxSubjectLength: 72,
+      allowEmoji: false,
       confirmBeforeCommit: true,
       confirmBeforePush: true,
       scopeStrategy: "auto" as const,
       groqApiKey: "key",
       onboardingComplete: true,
+      rules: [],
+      allowedScopes: [],
+      forbiddenPatterns: [],
+      fewShotExamples: [],
     },
   };
 

@@ -2,7 +2,8 @@ import type { CommitSuggestion } from "@/types";
 
 export function formatCommitMessage(suggestion: CommitSuggestion): string {
   const scope = suggestion.scope ? `(${suggestion.scope})` : "";
-  return `${suggestion.type}${scope}: ${suggestion.subject}`;
+  const prefix = suggestion.emoji ? `${suggestion.emoji} ` : "";
+  return `${prefix}${suggestion.type}${scope}: ${suggestion.subject}`;
 }
 
 export function formatCommitMessageWithBody(

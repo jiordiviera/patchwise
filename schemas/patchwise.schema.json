@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/jiordiviera/patchwise/main/schemas/patchwise.schema.json",
+  "title": "Patchwise configuration",
+  "description": "Configuration schema for patchwise.config.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference used by editors."
+    },
+    "provider": {
+      "type": "string",
+      "enum": ["groq"],
+      "description": "AI provider used to generate commit suggestions."
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1,
+      "description": "AI model name used by the selected provider."
+    },
+    "commitConvention": {
+      "type": "string",
+      "enum": ["conventional"],
+      "description": "Commit message convention."
+    },
+    "language": {
+      "type": "string",
+      "enum": ["en", "fr"],
+      "description": "Default language for generated commit messages."
+    },
+    "maxSubjectLength": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Maximum length for generated commit subjects."
+    },
+    "allowEmoji": {
+      "type": "boolean",
+      "default": false,
+      "description": "Allow gitmoji-style emoji prefixes in generated commit messages."
+    },
+    "confirmBeforeCommit": {
+      "type": "boolean",
+      "description": "Ask for confirmation before creating a commit."
+    },
+    "confirmBeforePush": {
+      "type": "boolean",
+      "description": "Ask for confirmation before pushing after a commit."
+    },
+    "scopeStrategy": {
+      "type": "string",
+      "enum": ["auto", "manual", "none"],
+      "description": "How commit scopes are selected."
+    },
+    "groqApiKey": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Groq API key. Prefer environment variables or user config; avoid committing secrets."
+    },
+    "onboardingComplete": {
+      "type": "boolean",
+      "description": "Whether the interactive setup has completed."
+    },
+    "rules": {
+      "type": "array",
+      "description": "Additional project or user rules injected into the commit prompt.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "allowedScopes": {
+      "type": "array",
+      "description": "Allowed Conventional Commit scopes.",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[a-z0-9][a-z0-9-]*$"
+      },
+      "uniqueItems": true
+    },
+    "forbiddenPatterns": {
+      "type": "array",
+      "description": "Words or patterns that generated commits should avoid.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "fewShotExamples": {
+      "type": "array",
+      "description": "Examples of preferred commit style injected into the prompt.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["commit"],
+        "properties": {
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Short description of the change represented by the example."
+          },
+          "commit": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Preferred commit message example."
+          }
+        }
+      }
+    }
+  }
+}
