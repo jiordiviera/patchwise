@@ -1,5 +1,14 @@
 # patchwise
 
+## 1.3.1
+
+### Patch Changes
+
+- Improve setup behavior when an existing configuration is present.
+  - keep existing provider, model, and language as defaults during setup
+  - allow pressing Enter to keep an existing Groq API key without retyping it
+  - make `config init` report whether the project config was created or already existed
+
 ## 1.3.0
 
 ### Minor Changes

@@ -86,14 +86,26 @@ export async function promptForSetup(
   const groqApiKey = await password({
     message:
       chalk.bold("Groq API key") +
-      chalk.dim(" (https://console.groq.com/keys)"),
+      chalk.dim(
+        defaults.groqApiKey
+          ? " (press Enter to keep existing key)"
+          : " (https://console.groq.com/keys)",
+      ),
     mask: "*",
     validate(value) {
+      if (defaults.groqApiKey && value.trim().length === 0) {
+        return true;
+      }
+
       return value.trim().length > 0 || "API key is required.";
     },
   });
 
-  const trimmedApiKey = groqApiKey.trim();
+  const trimmedApiKey = groqApiKey.trim() || defaults.groqApiKey;
+
+  if (!trimmedApiKey) {
+    throw new Error("API key is required.");
+  }
 
   // Fetch available models from Groq
   let modelChoices: Array<{ name: string; value: string }> = [];

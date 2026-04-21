@@ -48,12 +48,22 @@ export async function loadConfig(cwd = process.cwd()): Promise<AppConfig> {
   };
 }
 
-export async function initConfigFile(cwd = process.cwd()): Promise<string> {
+export interface InitConfigFileResult {
+  path: string;
+  created: boolean;
+}
+
+export async function initConfigFile(
+  cwd = process.cwd(),
+): Promise<InitConfigFileResult> {
   const configPath = path.join(cwd, CONFIG_FILE_NAME);
 
   try {
     await access(configPath);
-    return configPath;
+    return {
+      path: configPath,
+      created: false,
+    };
   } catch (error) {
     if (!isMissingFile(error)) {
       throw error;
@@ -66,7 +76,10 @@ export async function initConfigFile(cwd = process.cwd()): Promise<string> {
     "utf8",
   );
 
-  return configPath;
+  return {
+    path: configPath,
+    created: true,
+  };
 }
 
 export async function loadUserConfig(): Promise<Partial<AppConfig>> {
