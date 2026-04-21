@@ -24,6 +24,11 @@ export async function generateSuggestionsFromDiff(
         : config.scopeStrategy,
     scope: options?.scope,
     maxSubjectLength: config.maxSubjectLength,
+    allowEmoji: config.allowEmoji,
+    rules: config.rules,
+    allowedScopes: config.allowedScopes,
+    forbiddenPatterns: config.forbiddenPatterns,
+    fewShotExamples: config.fewShotExamples,
   };
 
   const result = await provider.generateCommitSuggestions(input);
