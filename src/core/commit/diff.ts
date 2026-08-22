@@ -7,7 +7,10 @@ export function truncateDiff(diff: string, maxChars = 4_000): string {
   const files = parseDiffFiles(diff);
 
   if (files.length === 0) {
-    return fitToLimit(`${diff.slice(0, maxChars)}\n\n[diff truncated]`, maxChars);
+    return fitToLimit(
+      `${diff.slice(0, maxChars)}\n\n[diff truncated]`,
+      maxChars,
+    );
   }
 
   // Start with a stat summary

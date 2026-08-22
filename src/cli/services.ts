@@ -46,7 +46,9 @@ export async function generateSuggestionsFromDiff(
   const result = await provider.generateCommitSuggestions(input);
 
   if (activeProvider !== config.provider) {
-    printSuccess(`Suggestions generated via ${getProviderLabel(activeProvider)}`);
+    printSuccess(
+      `Suggestions generated via ${getProviderLabel(activeProvider)}`,
+    );
   }
 
   return {

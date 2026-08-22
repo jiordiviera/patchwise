@@ -25,9 +25,7 @@ const success: SuggestionResult = {
   suggestions: [{ type: "feat", subject: "add feature" }],
 };
 
-function fakeProvider(
-  behavior: (() => Promise<SuggestionResult>) | AppError,
-) {
+function fakeProvider(behavior: (() => Promise<SuggestionResult>) | AppError) {
   return {
     generateCommitSuggestions: vi.fn(() =>
       behavior instanceof AppError ? Promise.reject(behavior) : behavior(),
@@ -91,9 +89,9 @@ describe("FallbackAIProvider", () => {
         onFallback,
       );
 
-      await expect(
-        fallback.generateCommitSuggestions(input),
-      ).rejects.toBe(nonRetryable);
+      await expect(fallback.generateCommitSuggestions(input)).rejects.toBe(
+        nonRetryable,
+      );
       expect(secondary.generateCommitSuggestions).not.toHaveBeenCalled();
       expect(onFallback).not.toHaveBeenCalled();
     },
@@ -114,19 +112,22 @@ describe("FallbackAIProvider", () => {
       { provider: "groq", instance: fakeProvider(groqError) },
     ]);
 
-    await expect(fallback.generateCommitSuggestions(input)).rejects.toMatchObject(
-      {
-        code: "AI_ALL_PROVIDERS_FAILED",
-        details: [
-          "gemini: Gemini rate limit reached.",
-          "groq: Could not reach the Groq API.",
-        ],
-      },
-    );
+    await expect(
+      fallback.generateCommitSuggestions(input),
+    ).rejects.toMatchObject({
+      code: "AI_ALL_PROVIDERS_FAILED",
+      details: [
+        "gemini: Gemini rate limit reached.",
+        "groq: Could not reach the Groq API.",
+      ],
+    });
   });
 
   it("does not wrap the error when only one provider is in the chain", async () => {
-    const error = new AppError({ code: "AI_NETWORK_ERROR", message: "offline" });
+    const error = new AppError({
+      code: "AI_NETWORK_ERROR",
+      message: "offline",
+    });
 
     const fallback = new FallbackAIProvider([
       { provider: "groq", instance: fakeProvider(error) },

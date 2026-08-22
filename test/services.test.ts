@@ -9,9 +9,12 @@ interface CreateAIProviderMockOptions {
 }
 
 const createAIProviderMock = vi.hoisted(() =>
-  vi.fn<(config: unknown, options?: CreateAIProviderMockOptions) => typeof providerMock>(
-    () => providerMock,
-  ),
+  vi.fn<
+    (
+      config: unknown,
+      options?: CreateAIProviderMockOptions,
+    ) => typeof providerMock
+  >(() => providerMock),
 );
 const getProviderLabelMock = vi.hoisted(() =>
   vi.fn((provider: string) => (provider === "groq" ? "Groq" : "Gemini")),
@@ -54,7 +57,11 @@ describe("generateSuggestionsFromDiff", () => {
     providerMock.generateCommitSuggestions.mockResolvedValue({
       summary: "summary",
       suggestions: [
-        { type: "feat", scope: "api", subject: "add a very long feature subject" },
+        {
+          type: "feat",
+          scope: "api",
+          subject: "add a very long feature subject",
+        },
         { type: "fix", subject: "fix issue" },
         { type: "docs", subject: "write docs" },
       ],

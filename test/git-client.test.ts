@@ -16,8 +16,14 @@ describe("git client", () => {
   it("asserts git repository on success", async () => {
     execGitMock.mockResolvedValue({ stdout: "true\n" });
 
-    await expect(gitClient.assertGitRepository("/repo")).resolves.toBeUndefined();
-    expect(execGitMock).toHaveBeenCalledWith("git", ["rev-parse", "--is-inside-work-tree"], expect.any(Object));
+    await expect(
+      gitClient.assertGitRepository("/repo"),
+    ).resolves.toBeUndefined();
+    expect(execGitMock).toHaveBeenCalledWith(
+      "git",
+      ["rev-parse", "--is-inside-work-tree"],
+      expect.any(Object),
+    );
   });
 
   it("maps non-git directories to a structured error", async () => {
@@ -57,13 +63,19 @@ describe("git client", () => {
 
     await gitClient.stageAll("/repo");
 
-    expect(execGitMock).toHaveBeenCalledWith("git", ["add", "-A"], expect.any(Object));
+    expect(execGitMock).toHaveBeenCalledWith(
+      "git",
+      ["add", "-A"],
+      expect.any(Object),
+    );
   });
 
   it("returns the current branch", async () => {
     execGitMock.mockResolvedValue({ stdout: "feature/test\n" });
 
-    await expect(gitClient.getCurrentBranch("/repo")).resolves.toBe("feature/test");
+    await expect(gitClient.getCurrentBranch("/repo")).resolves.toBe(
+      "feature/test",
+    );
   });
 
   it("maps generic git failures", async () => {
@@ -108,7 +120,9 @@ describe("git client", () => {
       }),
     );
 
-    await expect(gitClient.createCommit("feat: test", "/repo")).rejects.toMatchObject({
+    await expect(
+      gitClient.createCommit("feat: test", "/repo"),
+    ).rejects.toMatchObject({
       code: "NOTHING_TO_COMMIT",
     });
   });

@@ -6,9 +6,8 @@ vi.mock("@/core/ai/prompt", () => ({
   buildPrompt: buildPromptMock,
 }));
 
-const { GroqAIProvider, listGroqModels } = await import(
-  "@/core/ai/providers/groq"
-);
+const { GroqAIProvider, listGroqModels } =
+  await import("@/core/ai/providers/groq");
 
 describe("groq provider", () => {
   const input = {
@@ -39,7 +38,9 @@ describe("groq provider", () => {
               message: {
                 content: JSON.stringify({
                   summary: "summary",
-                  suggestions: [{ emoji: "✨", type: "feat", subject: "add feature" }],
+                  suggestions: [
+                    { emoji: "✨", type: "feat", subject: "add feature" },
+                  ],
                 }),
               },
             },
@@ -69,7 +70,9 @@ describe("groq provider", () => {
 
     const provider = new GroqAIProvider("key", "model");
 
-    await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
+    await expect(
+      provider.generateCommitSuggestions(input),
+    ).rejects.toMatchObject({
       code: "AI_NETWORK_ERROR",
     });
   });
@@ -86,7 +89,9 @@ describe("groq provider", () => {
 
     const provider = new GroqAIProvider("key", "model");
 
-    await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
+    await expect(
+      provider.generateCommitSuggestions(input),
+    ).rejects.toMatchObject({
       code: "AI_AUTH_FAILED",
     });
   });
@@ -103,7 +108,9 @@ describe("groq provider", () => {
 
     const provider = new GroqAIProvider("key", "model");
 
-    await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
+    await expect(
+      provider.generateCommitSuggestions(input),
+    ).rejects.toMatchObject({
       code: "AI_RATE_LIMITED",
     });
   });
@@ -128,7 +135,9 @@ describe("groq provider", () => {
 
     const provider = new GroqAIProvider("key", "model");
 
-    await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
+    await expect(
+      provider.generateCommitSuggestions(input),
+    ).rejects.toMatchObject({
       code: "AI_REQUEST_TOO_LARGE",
       message: "The staged diff is too large for Groq.",
       hint: "Commit fewer files, use `patchwise commit --select`, or split this change into smaller commits.",
@@ -154,7 +163,9 @@ describe("groq provider", () => {
 
     const provider = new GroqAIProvider("key", "model");
 
-    await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
+    await expect(
+      provider.generateCommitSuggestions(input),
+    ).rejects.toMatchObject({
       code: "AI_INVALID_RESPONSE",
     });
   });
@@ -181,7 +192,9 @@ describe("groq provider", () => {
 
     const provider = new GroqAIProvider("key", "model");
 
-    await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
+    await expect(
+      provider.generateCommitSuggestions(input),
+    ).rejects.toMatchObject({
       code: "AI_INVALID_RESPONSE",
     });
   });
@@ -199,7 +212,9 @@ describe("groq provider", () => {
 
     const provider = new GroqAIProvider("key", "model");
 
-    await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
+    await expect(
+      provider.generateCommitSuggestions(input),
+    ).rejects.toMatchObject({
       code: "AI_EMPTY_RESPONSE",
     });
   });

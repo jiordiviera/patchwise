@@ -20,9 +20,8 @@ vi.mock("@/core/ai/fallback-provider", () => ({
   FallbackAIProvider: fallbackAIProviderCtor,
 }));
 
-const { createAIProvider, listModelsForProvider } = await import(
-  "@/core/ai/create-provider"
-);
+const { createAIProvider, listModelsForProvider } =
+  await import("@/core/ai/create-provider");
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -73,7 +72,10 @@ describe("createAIProvider", () => {
       apiKeys: { gemini: "secret" },
     });
 
-    expect(geminiProviderCtor).toHaveBeenCalledWith("secret", "gemini-2.5-flash");
+    expect(geminiProviderCtor).toHaveBeenCalledWith(
+      "secret",
+      "gemini-2.5-flash",
+    );
   });
 
   it("fails when the Gemini API key is missing", () => {
@@ -122,7 +124,10 @@ describe("createAIProvider fallback chain", () => {
       apiKeys: { gemini: "gemini-secret", groq: "groq-secret" },
     });
 
-    expect(geminiProviderCtor).toHaveBeenCalledWith("gemini-secret", "gemini-2.5-flash");
+    expect(geminiProviderCtor).toHaveBeenCalledWith(
+      "gemini-secret",
+      "gemini-2.5-flash",
+    );
     expect(groqProviderCtor).toHaveBeenCalledWith(
       "groq-secret",
       "llama-3.3-70b-versatile",
@@ -150,7 +155,10 @@ describe("createAIProvider fallback chain", () => {
       { onFallback },
     );
 
-    expect(fallbackAIProviderCtor).toHaveBeenCalledWith(expect.any(Array), onFallback);
+    expect(fallbackAIProviderCtor).toHaveBeenCalledWith(
+      expect.any(Array),
+      onFallback,
+    );
   });
 
   it("silently skips a fallback provider missing its api key", () => {

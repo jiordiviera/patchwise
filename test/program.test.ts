@@ -7,7 +7,9 @@ const runCommitCommandMock = vi.hoisted(() => vi.fn());
 const runSetupCommandMock = vi.hoisted(() => vi.fn());
 const runConfigInitCommandMock = vi.hoisted(() => vi.fn());
 const checkForUpdatesMock = vi.hoisted(() => vi.fn());
-const getUpdateCommandMock = vi.hoisted(() => vi.fn(() => "pnpm dlx patchwise@latest"));
+const getUpdateCommandMock = vi.hoisted(() =>
+  vi.fn(() => "pnpm dlx patchwise@latest"),
+);
 const runUpdateMock = vi.hoisted(() => vi.fn());
 const confirmActionMock = vi.hoisted(() => vi.fn());
 const printAppErrorMock = vi.hoisted(() => vi.fn());
@@ -157,10 +159,9 @@ describe("program", () => {
 
     await program.parseAsync(["node", "patchwise", "suggest"]);
 
-    expect(runSetupCommandMock).toHaveBeenCalledWith(
-      expect.any(Object),
-      { silentWhenNonInteractive: true },
-    );
+    expect(runSetupCommandMock).toHaveBeenCalledWith(expect.any(Object), {
+      silentWhenNonInteractive: true,
+    });
   });
 
   it("prints structured errors through the central handler", async () => {
@@ -179,8 +180,14 @@ describe("program", () => {
   it("shows update information when available in non-interactive mode", async () => {
     const originalInTTY = process.stdin.isTTY;
     const originalOutTTY = process.stdout.isTTY;
-    Object.defineProperty(process.stdin, "isTTY", { value: false, configurable: true });
-    Object.defineProperty(process.stdout, "isTTY", { value: false, configurable: true });
+    Object.defineProperty(process.stdin, "isTTY", {
+      value: false,
+      configurable: true,
+    });
+    Object.defineProperty(process.stdout, "isTTY", {
+      value: false,
+      configurable: true,
+    });
 
     checkForUpdatesMock.mockResolvedValue({
       updateAvailable: true,
@@ -232,7 +239,13 @@ describe("program", () => {
 
     expect(logSpy).toHaveBeenCalled();
 
-    Object.defineProperty(process.stdin, "isTTY", { value: originalInTTY, configurable: true });
-    Object.defineProperty(process.stdout, "isTTY", { value: originalOutTTY, configurable: true });
+    Object.defineProperty(process.stdin, "isTTY", {
+      value: originalInTTY,
+      configurable: true,
+    });
+    Object.defineProperty(process.stdout, "isTTY", {
+      value: originalOutTTY,
+      configurable: true,
+    });
   });
 });

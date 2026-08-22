@@ -6,9 +6,8 @@ vi.mock("@/core/ai/prompt", () => ({
   buildPrompt: buildPromptMock,
 }));
 
-const { GeminiAIProvider, listGeminiModels } = await import(
-  "@/core/ai/providers/gemini"
-);
+const { GeminiAIProvider, listGeminiModels } =
+  await import("@/core/ai/providers/gemini");
 
 describe("gemini provider", () => {
   const input = {
@@ -107,7 +106,9 @@ describe("gemini provider", () => {
 
     const provider = new GeminiAIProvider("key", "gemini-2.5-flash");
 
-    await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
+    await expect(
+      provider.generateCommitSuggestions(input),
+    ).rejects.toMatchObject({
       code: "AI_NETWORK_ERROR",
     });
   });
@@ -120,7 +121,11 @@ describe("gemini provider", () => {
         status: 401,
         text: vi.fn().mockResolvedValue(
           JSON.stringify({
-            error: { code: 401, message: "API key not valid", status: "UNAUTHENTICATED" },
+            error: {
+              code: 401,
+              message: "API key not valid",
+              status: "UNAUTHENTICATED",
+            },
           }),
         ),
       }),
@@ -128,7 +133,9 @@ describe("gemini provider", () => {
 
     const provider = new GeminiAIProvider("key", "gemini-2.5-flash");
 
-    await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
+    await expect(
+      provider.generateCommitSuggestions(input),
+    ).rejects.toMatchObject({
       code: "AI_AUTH_FAILED",
       details: ["UNAUTHENTICATED: API key not valid"],
     });
@@ -146,7 +153,9 @@ describe("gemini provider", () => {
 
     const provider = new GeminiAIProvider("key", "gemini-2.5-flash");
 
-    await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
+    await expect(
+      provider.generateCommitSuggestions(input),
+    ).rejects.toMatchObject({
       code: "AI_RATE_LIMITED",
     });
   });
@@ -164,7 +173,9 @@ describe("gemini provider", () => {
 
     const provider = new GeminiAIProvider("key", "gemini-2.5-flash");
 
-    await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
+    await expect(
+      provider.generateCommitSuggestions(input),
+    ).rejects.toMatchObject({
       code: "AI_EMPTY_RESPONSE",
       message: "Gemini blocked the response (SAFETY).",
     });
@@ -183,7 +194,9 @@ describe("gemini provider", () => {
 
     const provider = new GeminiAIProvider("key", "gemini-2.5-flash");
 
-    await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
+    await expect(
+      provider.generateCommitSuggestions(input),
+    ).rejects.toMatchObject({
       code: "AI_INVALID_RESPONSE",
     });
   });
