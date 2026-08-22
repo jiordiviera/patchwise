@@ -38,7 +38,7 @@ describe("config", () => {
     const dir = await makeTempDir();
     const config = await loadConfig(dir);
 
-    expect(config.provider).toBe("groq");
+    expect(config.provider).toBe("gemini");
     expect(config.language).toBe("en");
   });
 
@@ -50,7 +50,7 @@ describe("config", () => {
 
     expect(result.created).toBe(true);
     expect(path.basename(filePath)).toBe("patchwise.config.json");
-    expect(content).toContain('"provider": "groq"');
+    expect(content).toContain('"provider": "gemini"');
   });
 
   it("does not overwrite an existing config file", async () => {

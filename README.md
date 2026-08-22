@@ -18,13 +18,14 @@ It analyzes your diff, suggests commit messages with detailed bodies, and guides
 * Generate commit messages with body using AI
 * Supports Conventional Commits
 * Interactive file selection and staging
-* Live Groq model selection during setup
+* Live model selection during setup
 * Custom commit message option
 * Optional push after commit
 * Smart diff truncation for large changesets
 * Colorful CLI output with type badges
 * Multi-language support (EN / FR)
-* Provider-agnostic architecture, Groq by default
+* Multi-provider: Gemini by default, Groq as an alternative
+* Automatic fallback to a secondary provider on transient failures
 
 ---
 
@@ -53,13 +54,16 @@ npx patchwise@latest setup
 ```
 
 This interactive wizard will:
-- Ask for your Groq API key (get one at [console.groq.com/keys](https://console.groq.com/keys))
-- Let you pick a model from the live list of available Groq models
-- Set your preferred commit language
+- Let you pick a provider — Gemini (recommended) or Groq
+- Ask for that provider's API key (get a Gemini key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey), or a Groq key at [console.groq.com/keys](https://console.groq.com/keys))
+- Let you pick a model from the live list of available models
+- Optionally configure a fallback provider, used automatically if the primary one fails
+- Set your emoji and commit language preferences
 
-Or set your API key manually:
+Or set your API key(s) manually:
 
 ```bash
+export GEMINI_API_KEY=your_api_key_here
 export GROQ_API_KEY=your_api_key_here
 ```
 
@@ -183,9 +187,10 @@ npx patchwise@latest config init
 ### Environment variables
 
 ```bash
+GEMINI_API_KEY=xxx
 GROQ_API_KEY=xxx
-PATCHWISE_PROVIDER=groq
-PATCHWISE_MODEL=llama-3.3-70b-versatile
+PATCHWISE_PROVIDER=gemini
+PATCHWISE_MODEL=gemini-2.5-flash
 PATCHWISE_LANGUAGE=en
 ```
 
@@ -197,16 +202,19 @@ Create `patchwise.config.json`:
 
 ```json
 {
-  "provider": "groq",
-  "model": "llama-3.3-70b-versatile",
+  "provider": "gemini",
+  "model": "gemini-2.5-flash",
   "commitConvention": "conventional",
   "language": "en",
   "maxSubjectLength": 72,
   "confirmBeforeCommit": true,
   "confirmBeforePush": true,
-  "scopeStrategy": "auto"
+  "scopeStrategy": "auto",
+  "fallbackProvider": "groq"
 }
 ```
+
+API keys are never stored in `patchwise.config.json` (it's meant to be committed to the repo). They live in your user-level config — written by `patchwise setup` — or in `GEMINI_API_KEY` / `GROQ_API_KEY` environment variables.
 
 ### scopeStrategy
 
@@ -250,7 +258,10 @@ chore(config): update gitignore and add payment docs
 
 Supported:
 
+* Gemini (default, with live model selection)
 * Groq (with live model selection)
+
+Configure a `fallbackProvider` (via `patchwise setup` or `patchwise.config.json`) and Patchwise automatically retries with it if the primary provider is rate-limited, unreachable, or temporarily down — auth failures and oversized requests don't trigger a retry, since those usually have the same cause on every provider.
 
 Planned:
 
