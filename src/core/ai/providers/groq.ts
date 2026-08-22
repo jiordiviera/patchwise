@@ -1,10 +1,16 @@
 import { buildPrompt } from "@/core/ai/prompt";
 import { AppError } from "@/core/errors/app-error";
 import { providerResponseSchema } from "@/core/ai/schemas";
-import type { AIProvider, SuggestCommitInput, SuggestionResult } from "@/types";
+import type {
+  AIProvider,
+  ModelOption,
+  SuggestCommitInput,
+  SuggestionResult,
+} from "@/types";
 import { ZodError } from "zod";
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_MODELS_URL = "https://api.groq.com/openai/v1/models";
 
 interface GroqResponse {
   choices?: Array<{
@@ -115,6 +121,43 @@ export class GroqAIProvider implements AIProvider {
       throw error;
     }
   }
+}
+
+export async function listGroqModels(apiKey: string): Promise<ModelOption[]> {
+  let response: Response;
+
+  try {
+    response = await fetch(GROQ_MODELS_URL, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+  } catch (error) {
+    throw new AppError({
+      code: "AI_NETWORK_ERROR",
+      message: "Could not reach the Groq API.",
+      hint: "Check your network connection and try again.",
+      cause: error,
+    });
+  }
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw mapGroqApiError(response.status, body);
+  }
+
+  const data = (await response.json()) as {
+    data?: Array<{ id: string; active?: boolean }>;
+  };
+
+  return (data.data ?? [])
+    .filter((model) => model.active !== false)
+    .map((model) => ({ id: model.id, name: formatModelName(model.id) }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function formatModelName(id: string): string {
+  return id.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function mapGroqApiError(status: number, body: string): AppError {

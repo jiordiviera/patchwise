@@ -1,7 +1,7 @@
 import { checkbox, confirm, input, password, select } from "@inquirer/prompts";
 import chalk from "chalk";
 
-import { fetchGroqModels } from "@/core/ai/models";
+import { listModelsForProvider } from "@/core/ai/create-provider";
 import { formatCommitMessageWithBody } from "@/core/commit/format";
 import type { FileStatus } from "@/core/git/client";
 import type {
@@ -113,7 +113,7 @@ export async function promptForSetup(
   let modelChoices: Array<{ name: string; value: string }> = [];
 
   try {
-    const models = await fetchGroqModels(trimmedApiKey);
+    const models = await listModelsForProvider("groq", trimmedApiKey);
     modelChoices = models.map((m) => ({
       name: `${m.name}`,
       value: m.id,

@@ -6,7 +6,9 @@ vi.mock("@/core/ai/prompt", () => ({
   buildPrompt: buildPromptMock,
 }));
 
-const { GroqAIProvider } = await import("@/core/ai/providers/groq");
+const { GroqAIProvider, listGroqModels } = await import(
+  "@/core/ai/providers/groq"
+);
 
 describe("groq provider", () => {
   const input = {
@@ -199,6 +201,56 @@ describe("groq provider", () => {
 
     await expect(provider.generateCommitSuggestions(input)).rejects.toMatchObject({
       code: "AI_EMPTY_RESPONSE",
+    });
+  });
+});
+
+describe("listGroqModels", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns active models sorted by formatted name", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          data: [
+            { id: "llama-3.3-70b-versatile", active: true },
+            { id: "gemma-2-9b-it", active: false },
+            { id: "llama-3.1-8b-instant" },
+          ],
+        }),
+      }),
+    );
+
+    await expect(listGroqModels("secret")).resolves.toEqual([
+      { id: "llama-3.1-8b-instant", name: "Llama 3.1 8b Instant" },
+      { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70b Versatile" },
+    ]);
+  });
+
+  it("maps authentication failures to AppError", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 401,
+        text: vi.fn().mockResolvedValue("invalid api key"),
+      }),
+    );
+
+    await expect(listGroqModels("secret")).rejects.toMatchObject({
+      code: "AI_AUTH_FAILED",
+    });
+  });
+
+  it("maps network failures to AppError", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
+
+    await expect(listGroqModels("secret")).rejects.toMatchObject({
+      code: "AI_NETWORK_ERROR",
     });
   });
 });

@@ -72,6 +72,11 @@ export interface AIProvider {
   ): Promise<SuggestionResult>;
 }
 
+export interface ModelOption {
+  id: string;
+  name: string;
+}
+
 export interface CommitCommandOptions {
   all?: boolean;
   select?: boolean;
