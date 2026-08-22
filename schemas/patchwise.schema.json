@@ -12,7 +12,7 @@
     },
     "provider": {
       "type": "string",
-      "enum": ["groq"],
+      "enum": ["gemini", "groq"],
       "description": "AI provider used to generate commit suggestions."
     },
     "model": {
@@ -53,10 +53,10 @@
       "enum": ["auto", "manual", "none"],
       "description": "How commit scopes are selected."
     },
-    "groqApiKey": {
+    "fallbackProvider": {
       "type": "string",
-      "minLength": 1,
-      "description": "Groq API key. Prefer environment variables or user config; avoid committing secrets."
+      "enum": ["gemini", "groq"],
+      "description": "Provider to retry with if the primary provider fails on a retryable error."
     },
     "onboardingComplete": {
       "type": "boolean",

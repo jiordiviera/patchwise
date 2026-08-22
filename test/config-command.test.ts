@@ -36,7 +36,7 @@ describe("config command", () => {
       confirmBeforeCommit: true,
       confirmBeforePush: true,
       scopeStrategy: "auto" as const,
-      groqApiKey: "key",
+      apiKeys: { groq: "key" },
       onboardingComplete: true,
       rules: [],
       allowedScopes: [],
@@ -64,7 +64,7 @@ describe("config command", () => {
       provider: "groq",
       model: "llama-3.3-70b-versatile",
       language: "fr",
-      groqApiKey: "new-key",
+      apiKeys: { groq: "new-key" },
     });
     saveUserConfigMock.mockResolvedValue("/home/user/.config/patchwise/config.json");
   });
@@ -107,7 +107,7 @@ describe("config command", () => {
       provider: "groq",
       model: "llama-3.3-70b-versatile",
       language: "fr",
-      groqApiKey: "new-key",
+      apiKeys: { groq: "new-key" },
       onboardingComplete: true,
     });
     expect(logSpy).toHaveBeenCalledWith(
@@ -118,7 +118,7 @@ describe("config command", () => {
   it("does not ask for replacement when setup is incomplete", async () => {
     loadConfigMock.mockResolvedValue({
       ...context.config,
-      groqApiKey: undefined,
+      apiKeys: {},
       onboardingComplete: false,
     });
 

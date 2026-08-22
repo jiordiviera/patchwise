@@ -67,7 +67,7 @@ describe("program", () => {
       confirmBeforeCommit: true,
       confirmBeforePush: true,
       scopeStrategy: "auto",
-      groqApiKey: "key",
+      apiKeys: { groq: "key" },
       onboardingComplete: true,
     });
     checkForUpdatesMock.mockResolvedValue({
@@ -125,6 +125,7 @@ describe("program", () => {
         confirmBeforeCommit: true,
         confirmBeforePush: true,
         scopeStrategy: "auto",
+        apiKeys: {},
         onboardingComplete: false,
       })
       .mockResolvedValueOnce({
@@ -136,6 +137,7 @@ describe("program", () => {
         confirmBeforeCommit: true,
         confirmBeforePush: true,
         scopeStrategy: "auto",
+        apiKeys: {},
         onboardingComplete: false,
       })
       .mockResolvedValueOnce({
@@ -147,7 +149,7 @@ describe("program", () => {
         confirmBeforeCommit: true,
         confirmBeforePush: true,
         scopeStrategy: "auto",
-        groqApiKey: "key",
+        apiKeys: { groq: "key" },
         onboardingComplete: true,
       });
 
@@ -197,6 +199,7 @@ describe("program", () => {
         confirmBeforeCommit: true,
         confirmBeforePush: true,
         scopeStrategy: "auto",
+        apiKeys: {},
         onboardingComplete: false,
       })
       .mockResolvedValueOnce({
@@ -208,6 +211,7 @@ describe("program", () => {
         confirmBeforeCommit: true,
         confirmBeforePush: true,
         scopeStrategy: "auto",
+        apiKeys: {},
         onboardingComplete: false,
       })
       .mockResolvedValueOnce({
@@ -219,7 +223,7 @@ describe("program", () => {
         confirmBeforeCommit: true,
         confirmBeforePush: true,
         scopeStrategy: "auto",
-        groqApiKey: "key",
+        apiKeys: { groq: "key" },
         onboardingComplete: true,
       });
 

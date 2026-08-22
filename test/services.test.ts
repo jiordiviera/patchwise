@@ -23,7 +23,7 @@ describe("generateSuggestionsFromDiff", () => {
     confirmBeforeCommit: true,
     confirmBeforePush: true,
     scopeStrategy: "auto" as const,
-    groqApiKey: "secret",
+    apiKeys: { groq: "secret" },
     rules: ["Use imperative mood"],
     allowedScopes: ["auth", "api"],
     forbiddenPatterns: ["wip"],

@@ -10,6 +10,7 @@ export const DEFAULT_CONFIG: AppConfig = {
   confirmBeforeCommit: true,
   confirmBeforePush: true,
   scopeStrategy: "auto",
+  apiKeys: {},
   onboardingComplete: false,
   rules: [],
   allowedScopes: [],

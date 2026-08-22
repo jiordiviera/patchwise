@@ -54,7 +54,7 @@ const baseContext = {
     confirmBeforeCommit: true,
     confirmBeforePush: true,
     scopeStrategy: "auto" as const,
-    groqApiKey: "test-key",
+    apiKeys: { groq: "test-key" },
     onboardingComplete: true,
     rules: [],
     allowedScopes: [],

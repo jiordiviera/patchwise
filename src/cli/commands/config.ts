@@ -42,7 +42,7 @@ export async function runSetupCommand(
     provider: answers.provider,
     model: answers.model,
     language: answers.language,
-    groqApiKey: answers.groqApiKey,
+    apiKeys: answers.apiKeys,
     onboardingComplete: true,
   });
 

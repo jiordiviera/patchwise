@@ -4,7 +4,7 @@ import type { AIProvider, AppConfig } from "@/types";
 
 export function createAIProvider(config: AppConfig): AIProvider {
   if (config.provider === "groq") {
-    const apiKey = config.groqApiKey;
+    const apiKey = config.apiKeys.groq;
 
     if (!apiKey) {
       throw new AppError({

@@ -11,7 +11,9 @@ export type CommitType =
 
 export type ScopeStrategy = "auto" | "manual" | "none";
 export type Language = "en" | "fr";
-export type ProviderName = "groq";
+export type ProviderName = "gemini" | "groq";
+
+export type ApiKeys = Partial<Record<ProviderName, string>>;
 
 export interface CommitSuggestion {
   type: CommitType;
@@ -55,7 +57,8 @@ export interface AppConfig {
   confirmBeforeCommit: boolean;
   confirmBeforePush: boolean;
   scopeStrategy: ScopeStrategy;
-  groqApiKey?: string;
+  apiKeys: ApiKeys;
+  fallbackProvider?: ProviderName;
   onboardingComplete?: boolean;
   rules: string[];
   allowedScopes: string[];

@@ -71,7 +71,7 @@ export interface SetupAnswers {
   provider: ProviderName;
   model: string;
   language: Language;
-  groqApiKey: string;
+  apiKeys: { groq: string };
 }
 
 export async function promptForSetup(
@@ -83,17 +83,19 @@ export async function promptForSetup(
     default: defaults.provider ?? "groq",
   });
 
+  const existingGroqApiKey = defaults.apiKeys?.groq;
+
   const groqApiKey = await password({
     message:
       chalk.bold("Groq API key") +
       chalk.dim(
-        defaults.groqApiKey
+        existingGroqApiKey
           ? " (press Enter to keep existing key)"
           : " (https://console.groq.com/keys)",
       ),
     mask: "*",
     validate(value) {
-      if (defaults.groqApiKey && value.trim().length === 0) {
+      if (existingGroqApiKey && value.trim().length === 0) {
         return true;
       }
 
@@ -101,7 +103,7 @@ export async function promptForSetup(
     },
   });
 
-  const trimmedApiKey = groqApiKey.trim() || defaults.groqApiKey;
+  const trimmedApiKey = groqApiKey.trim() || existingGroqApiKey;
 
   if (!trimmedApiKey) {
     throw new Error("API key is required.");
@@ -154,6 +156,6 @@ export async function promptForSetup(
     provider,
     model: model.trim(),
     language,
-    groqApiKey: trimmedApiKey,
+    apiKeys: { groq: trimmedApiKey },
   };
 }
