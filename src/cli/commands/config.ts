@@ -6,6 +6,7 @@ import {
   saveUserConfig,
 } from "@/core/config/load-config";
 import { promptForSetup } from "@/core/ui/prompts";
+import type { AppConfig } from "@/types";
 
 export async function runConfigInitCommand(
   context: CommandContext,
@@ -38,13 +39,26 @@ export async function runSetupCommand(
 
   const currentConfig = await loadConfig(context.cwd);
   const answers = await promptForSetup(currentConfig);
-  const configPath = await saveUserConfig({
+
+  const configToSave: Partial<AppConfig> = {
     provider: answers.provider,
     model: answers.model,
     language: answers.language,
-    groqApiKey: answers.groqApiKey,
+    allowEmoji: answers.allowEmoji,
+    apiKeys: answers.apiKeys,
     onboardingComplete: true,
-  });
+  };
+
+  // undefined = leave the stored fallback provider untouched (the key is
+  // omitted so saveUserConfig's merge keeps whatever was already there);
+  // null means "remove it", which must still be written as an explicit
+  // undefined value so it overwrites (and JSON.stringify drops) the
+  // existing key.
+  if (answers.fallbackProvider !== undefined) {
+    configToSave.fallbackProvider = answers.fallbackProvider ?? undefined;
+  }
+
+  const configPath = await saveUserConfig(configToSave);
 
   context.config = await loadConfig(context.cwd);
   console.log(`User config saved to ${configPath}`);

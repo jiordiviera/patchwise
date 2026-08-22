@@ -51,7 +51,9 @@ export function buildPrompt(input: SuggestCommitInput): string {
     .join("\n");
 }
 
-function formatLanguageInstruction(language: SuggestCommitInput["language"]): string {
+function formatLanguageInstruction(
+  language: SuggestCommitInput["language"],
+): string {
   if (language === "fr") {
     return "Language: French. Write `summary`, `subject`, and `body` in French.";
   }

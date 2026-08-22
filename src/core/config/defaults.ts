@@ -1,8 +1,8 @@
 import type { AppConfig } from "@/types";
 
 export const DEFAULT_CONFIG: AppConfig = {
-  provider: "groq",
-  model: "llama-3.3-70b-versatile",
+  provider: "gemini",
+  model: "gemini-2.5-flash",
   commitConvention: "conventional",
   language: "en",
   maxSubjectLength: 72,
@@ -10,6 +10,7 @@ export const DEFAULT_CONFIG: AppConfig = {
   confirmBeforeCommit: true,
   confirmBeforePush: true,
   scopeStrategy: "auto",
+  apiKeys: {},
   onboardingComplete: false,
   rules: [],
   allowedScopes: [],

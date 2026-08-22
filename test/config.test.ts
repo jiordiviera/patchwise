@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
 
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import {
   getUserConfigPath,
@@ -12,6 +12,14 @@ import {
 
 const tempDirs: string[] = [];
 const originalXdgConfigHome = process.env.XDG_CONFIG_HOME;
+
+// Every test in this file must run against an isolated user config home,
+// never the real ~/.config/patchwise - otherwise these tests read and
+// assert against whatever the developer running them has actually
+// configured on their machine.
+beforeEach(async () => {
+  process.env.XDG_CONFIG_HOME = await makeTempDir();
+});
 
 afterEach(async () => {
   await Promise.all(
@@ -30,7 +38,7 @@ describe("config", () => {
     const dir = await makeTempDir();
     const config = await loadConfig(dir);
 
-    expect(config.provider).toBe("groq");
+    expect(config.provider).toBe("gemini");
     expect(config.language).toBe("en");
   });
 
@@ -42,7 +50,7 @@ describe("config", () => {
 
     expect(result.created).toBe(true);
     expect(path.basename(filePath)).toBe("patchwise.config.json");
-    expect(content).toContain('"provider": "groq"');
+    expect(content).toContain('"provider": "gemini"');
   });
 
   it("does not overwrite an existing config file", async () => {

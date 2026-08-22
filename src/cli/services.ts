@@ -1,6 +1,8 @@
-import { createAIProvider } from "@/core/ai/create-provider";
+import { createAIProvider, getProviderLabel } from "@/core/ai/create-provider";
+import { describeFallbackReason } from "@/core/ai/fallback-provider";
 import { extractFileNamesFromDiff, truncateDiff } from "@/core/commit/diff";
 import { applyScopeOverride, truncateSubject } from "@/core/commit/format";
+import { printSuccess, printWarning } from "@/core/ui/output";
 import type { AppConfig, CommitSuggestion, SuggestionResult } from "@/types";
 
 export async function generateSuggestionsFromDiff(
@@ -12,7 +14,17 @@ export async function generateSuggestionsFromDiff(
     noScope?: boolean;
   },
 ): Promise<SuggestionResult> {
-  const provider = createAIProvider(config);
+  let activeProvider = config.provider;
+
+  const provider = createAIProvider(config, {
+    onFallback: (from, to, reason) => {
+      activeProvider = to;
+      printWarning(
+        `${getProviderLabel(from)} unavailable (${describeFallbackReason(reason.code)}) — falling back to ${getProviderLabel(to)}...`,
+      );
+    },
+  });
+
   const input = {
     diff: truncateDiff(diff),
     fileNames: extractFileNamesFromDiff(diff),
@@ -32,6 +44,12 @@ export async function generateSuggestionsFromDiff(
   };
 
   const result = await provider.generateCommitSuggestions(input);
+
+  if (activeProvider !== config.provider) {
+    printSuccess(
+      `Suggestions generated via ${getProviderLabel(activeProvider)}`,
+    );
+  }
 
   return {
     ...result,

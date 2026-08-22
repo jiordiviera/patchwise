@@ -87,7 +87,10 @@ export async function createProgram(cwd = process.cwd()): Promise<Command> {
 
     context.config = await loadConfig(cwd);
 
-    if (context.config.onboardingComplete && context.config.groqApiKey) {
+    if (
+      context.config.onboardingComplete &&
+      context.config.apiKeys[context.config.provider]
+    ) {
       return;
     }
 
@@ -154,7 +157,7 @@ function sanitizeCommitOptions(
   return {
     ...options,
     lang: options.lang ? (options.lang === "fr" ? "fr" : "en") : undefined,
-    provider: (options.provider ?? "groq") as ProviderName,
+    provider: options.provider as ProviderName | undefined,
   };
 }
 

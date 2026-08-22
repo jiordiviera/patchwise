@@ -54,7 +54,7 @@ const baseContext = {
     confirmBeforeCommit: true,
     confirmBeforePush: true,
     scopeStrategy: "auto" as const,
-    groqApiKey: "test-key",
+    apiKeys: { groq: "test-key" },
     onboardingComplete: true,
     rules: [],
     allowedScopes: [],
@@ -68,7 +68,9 @@ describe("cli commands", () => {
     vi.clearAllMocks();
     gitClientMock.assertGitRepository.mockResolvedValue(undefined);
     gitClientMock.getCurrentBranch.mockResolvedValue("feature/test");
-    gitClientMock.getStagedDiff.mockResolvedValue("diff --git a/file.ts b/file.ts");
+    gitClientMock.getStagedDiff.mockResolvedValue(
+      "diff --git a/file.ts b/file.ts",
+    );
     servicesMock.generateSuggestionsFromDiff.mockResolvedValue({
       summary: "summary",
       suggestions: [{ type: "feat", subject: "add feature" }],
@@ -82,8 +84,14 @@ describe("cli commands", () => {
     await runCommitCommand(baseContext, { yes: true });
 
     expect(formatMock.formatCommitMessageWithBody).toHaveBeenCalled();
-    expect(gitClientMock.createCommit).toHaveBeenCalledWith("feat: add feature", "/repo");
-    expect(outputMock.printCommitCreated).toHaveBeenCalledWith("feat: add feature", "feature/test");
+    expect(gitClientMock.createCommit).toHaveBeenCalledWith(
+      "feat: add feature",
+      "/repo",
+    );
+    expect(outputMock.printCommitCreated).toHaveBeenCalledWith(
+      "feat: add feature",
+      "feature/test",
+    );
     expect(promptsMock.promptForSuggestion).not.toHaveBeenCalled();
   });
 
@@ -96,7 +104,9 @@ describe("cli commands", () => {
   it("fails when selecting files with no modified files", async () => {
     gitClientMock.getModifiedFiles.mockResolvedValue([]);
 
-    await expect(runCommitCommand(baseContext, { select: true })).rejects.toMatchObject({
+    await expect(
+      runCommitCommand(baseContext, { select: true }),
+    ).rejects.toMatchObject({
       code: "NO_MODIFIED_FILES",
     });
   });
@@ -146,7 +156,10 @@ describe("cli commands", () => {
 
     await runStageCommand(baseContext);
 
-    expect(gitClientMock.stageFiles).toHaveBeenCalledWith(["src/a.ts"], "/repo");
+    expect(gitClientMock.stageFiles).toHaveBeenCalledWith(
+      ["src/a.ts"],
+      "/repo",
+    );
   });
 
   it("fails in stage command when no files are modified", async () => {
