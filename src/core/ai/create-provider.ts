@@ -1,3 +1,4 @@
+import { GeminiAIProvider, listGeminiModels } from "@/core/ai/providers/gemini";
 import { GroqAIProvider, listGroqModels } from "@/core/ai/providers/groq";
 import { AppError } from "@/core/errors/app-error";
 import type { AIProvider, AppConfig, ModelOption, ProviderName } from "@/types";
@@ -9,6 +10,11 @@ interface ProviderRegistryEntry {
 }
 
 const PROVIDER_REGISTRY: Partial<Record<ProviderName, ProviderRegistryEntry>> = {
+  gemini: {
+    label: "Gemini",
+    createProvider: (apiKey, model) => new GeminiAIProvider(apiKey, model),
+    listModels: listGeminiModels,
+  },
   groq: {
     label: "Groq",
     createProvider: (apiKey, model) => new GroqAIProvider(apiKey, model),
