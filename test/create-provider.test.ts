@@ -1,9 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const groqProviderCtor = vi.hoisted(() => vi.fn());
 const listGroqModelsMock = vi.hoisted(() => vi.fn());
 const geminiProviderCtor = vi.hoisted(() => vi.fn());
 const listGeminiModelsMock = vi.hoisted(() => vi.fn());
+const fallbackAIProviderCtor = vi.hoisted(() => vi.fn());
 
 vi.mock("@/core/ai/providers/groq", () => ({
   GroqAIProvider: groqProviderCtor,
@@ -15,9 +16,17 @@ vi.mock("@/core/ai/providers/gemini", () => ({
   listGeminiModels: listGeminiModelsMock,
 }));
 
+vi.mock("@/core/ai/fallback-provider", () => ({
+  FallbackAIProvider: fallbackAIProviderCtor,
+}));
+
 const { createAIProvider, listModelsForProvider } = await import(
   "@/core/ai/create-provider"
 );
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 const baseConfig = {
   commitConvention: "conventional" as const,
@@ -89,6 +98,85 @@ describe("createAIProvider", () => {
         apiKeys: {},
       }),
     ).toThrowError(/Unsupported provider: openai/);
+  });
+});
+
+describe("createAIProvider fallback chain", () => {
+  it("does not wrap in a FallbackAIProvider when no fallback provider is configured", () => {
+    createAIProvider({
+      ...baseConfig,
+      provider: "groq",
+      model: "llama",
+      apiKeys: { groq: "secret" },
+    });
+
+    expect(fallbackAIProviderCtor).not.toHaveBeenCalled();
+  });
+
+  it("wraps primary and fallback in a FallbackAIProvider when both are configured", () => {
+    createAIProvider({
+      ...baseConfig,
+      provider: "gemini",
+      model: "gemini-2.5-flash",
+      fallbackProvider: "groq",
+      apiKeys: { gemini: "gemini-secret", groq: "groq-secret" },
+    });
+
+    expect(geminiProviderCtor).toHaveBeenCalledWith("gemini-secret", "gemini-2.5-flash");
+    expect(groqProviderCtor).toHaveBeenCalledWith(
+      "groq-secret",
+      "llama-3.3-70b-versatile",
+    );
+    expect(fallbackAIProviderCtor).toHaveBeenCalledWith(
+      [
+        { provider: "gemini", instance: expect.anything() },
+        { provider: "groq", instance: expect.anything() },
+      ],
+      undefined,
+    );
+  });
+
+  it("passes the onFallback callback through to FallbackAIProvider", () => {
+    const onFallback = vi.fn();
+
+    createAIProvider(
+      {
+        ...baseConfig,
+        provider: "gemini",
+        model: "gemini-2.5-flash",
+        fallbackProvider: "groq",
+        apiKeys: { gemini: "gemini-secret", groq: "groq-secret" },
+      },
+      { onFallback },
+    );
+
+    expect(fallbackAIProviderCtor).toHaveBeenCalledWith(expect.any(Array), onFallback);
+  });
+
+  it("silently skips a fallback provider missing its api key", () => {
+    createAIProvider({
+      ...baseConfig,
+      provider: "groq",
+      model: "llama",
+      fallbackProvider: "gemini",
+      apiKeys: { groq: "secret" },
+    });
+
+    expect(geminiProviderCtor).not.toHaveBeenCalled();
+    expect(fallbackAIProviderCtor).not.toHaveBeenCalled();
+  });
+
+  it("ignores a fallback provider that is the same as the primary", () => {
+    createAIProvider({
+      ...baseConfig,
+      provider: "groq",
+      model: "llama",
+      fallbackProvider: "groq",
+      apiKeys: { groq: "secret" },
+    });
+
+    expect(groqProviderCtor).toHaveBeenCalledTimes(1);
+    expect(fallbackAIProviderCtor).not.toHaveBeenCalled();
   });
 });
 
