@@ -14,24 +14,25 @@ interface ProviderRegistryEntry {
   listModels(apiKey: string): Promise<ModelOption[]>;
 }
 
-const PROVIDER_REGISTRY: Partial<Record<ProviderName, ProviderRegistryEntry>> = {
-  gemini: {
-    label: "Gemini",
-    createProvider: (apiKey, model) => new GeminiAIProvider(apiKey, model),
-    listModels: listGeminiModels,
-  },
-  groq: {
-    label: "Groq",
-    createProvider: (apiKey, model) => new GroqAIProvider(apiKey, model),
-    listModels: listGroqModels,
-  },
-};
+const PROVIDER_REGISTRY: Partial<Record<ProviderName, ProviderRegistryEntry>> =
+  {
+    gemini: {
+      label: "Gemini",
+      createProvider: (apiKey, model) => new GeminiAIProvider(apiKey, model),
+      listModels: listGeminiModels,
+    },
+    groq: {
+      label: "Groq",
+      createProvider: (apiKey, model) => new GroqAIProvider(apiKey, model),
+      listModels: listGroqModels,
+    },
+  };
 
 // The fallback provider runs a different model than the one configured for
 // the primary provider (config.model is scoped to config.provider only).
 // There's no per-provider model setting yet, so fall back to a sensible
 // default model per provider.
-const DEFAULT_MODEL_BY_PROVIDER: Record<ProviderName, string> = {
+export const DEFAULT_MODEL_BY_PROVIDER: Record<ProviderName, string> = {
   gemini: "gemini-2.5-flash",
   groq: "llama-3.3-70b-versatile",
 };

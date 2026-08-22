@@ -13,6 +13,11 @@ export type ScopeStrategy = "auto" | "manual" | "none";
 export type Language = "en" | "fr";
 export type ProviderName = "gemini" | "groq";
 
+export const PROVIDER_NAMES = [
+  "gemini",
+  "groq",
+] as const satisfies readonly ProviderName[];
+
 export type ApiKeys = Partial<Record<ProviderName, string>>;
 
 export interface CommitSuggestion {

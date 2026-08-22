@@ -3,19 +3,18 @@ import os from "node:os";
 import path from "node:path";
 import { z } from "zod";
 
-import type {
-  ApiKeys,
-  AppConfig,
-  Language,
-  ProviderName,
-  ScopeStrategy,
+import {
+  PROVIDER_NAMES,
+  type ApiKeys,
+  type AppConfig,
+  type Language,
+  type ProviderName,
+  type ScopeStrategy,
 } from "@/types";
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG } from "@/core/config/defaults";
 import { printWarning } from "@/core/ui/output";
 
 const stringArraySchema = z.array(z.string().min(1)).optional();
-
-const PROVIDER_NAMES = ["gemini", "groq"] as const satisfies readonly ProviderName[];
 
 const baseConfigShape = {
   $schema: z.string().min(1).optional(),
@@ -86,8 +85,11 @@ export async function loadConfig(cwd = process.cwd()): Promise<AppConfig> {
       fileConfig.language ?? userConfig.language ?? DEFAULT_CONFIG.language,
     ),
     allowEmoji:
-      fileConfig.allowEmoji ?? userConfig.allowEmoji ?? DEFAULT_CONFIG.allowEmoji,
-    fallbackProvider: fileConfig.fallbackProvider ?? userConfig.fallbackProvider,
+      fileConfig.allowEmoji ??
+      userConfig.allowEmoji ??
+      DEFAULT_CONFIG.allowEmoji,
+    fallbackProvider:
+      fileConfig.fallbackProvider ?? userConfig.fallbackProvider,
     apiKeys: resolveApiKeys(userConfig.apiKeys),
     onboardingComplete:
       fileConfig.onboardingComplete ??
@@ -177,9 +179,7 @@ export async function loadUserConfig(): Promise<PartialConfig> {
   return {};
 }
 
-export async function saveUserConfig(
-  config: PartialConfig,
-): Promise<string> {
+export async function saveUserConfig(config: PartialConfig): Promise<string> {
   const configPath = getUserConfigPath();
   const existing = await loadUserConfig();
 

@@ -15,9 +15,8 @@ vi.mock("@/core/ui/prompts", () => ({
   promptForSetup: promptForSetupMock,
 }));
 
-const { runConfigInitCommand, runSetupCommand } = await import(
-  "@/cli/commands/config"
-);
+const { runConfigInitCommand, runSetupCommand } =
+  await import("@/cli/commands/config");
 
 describe("config command", () => {
   const originalIsTTY = process.stdin.isTTY;
@@ -64,9 +63,12 @@ describe("config command", () => {
       provider: "groq",
       model: "llama-3.3-70b-versatile",
       language: "fr",
+      allowEmoji: true,
       apiKeys: { groq: "new-key" },
     });
-    saveUserConfigMock.mockResolvedValue("/home/user/.config/patchwise/config.json");
+    saveUserConfigMock.mockResolvedValue(
+      "/home/user/.config/patchwise/config.json",
+    );
   });
 
   afterEach(() => {
@@ -84,7 +86,9 @@ describe("config command", () => {
     await runConfigInitCommand(context);
 
     expect(initConfigFileMock).toHaveBeenCalledWith("/repo");
-    expect(logSpy).toHaveBeenCalledWith("Created config at /repo/patchwise.config.json");
+    expect(logSpy).toHaveBeenCalledWith(
+      "Created config at /repo/patchwise.config.json",
+    );
   });
 
   it("reports when the project config already exists", async () => {
@@ -95,7 +99,9 @@ describe("config command", () => {
 
     await runConfigInitCommand(context);
 
-    expect(logSpy).toHaveBeenCalledWith("Config already exists at /repo/patchwise.config.json");
+    expect(logSpy).toHaveBeenCalledWith(
+      "Config already exists at /repo/patchwise.config.json",
+    );
   });
 
   it("runs interactive setup and persists the user config", async () => {
@@ -107,12 +113,59 @@ describe("config command", () => {
       provider: "groq",
       model: "llama-3.3-70b-versatile",
       language: "fr",
+      allowEmoji: true,
       apiKeys: { groq: "new-key" },
       onboardingComplete: true,
     });
     expect(logSpy).toHaveBeenCalledWith(
       "User config saved to /home/user/.config/patchwise/config.json",
     );
+  });
+
+  it("sets fallbackProvider when the wizard selects one", async () => {
+    promptForSetupMock.mockResolvedValue({
+      provider: "groq",
+      model: "llama-3.3-70b-versatile",
+      language: "fr",
+      apiKeys: { groq: "new-key" },
+      fallbackProvider: "gemini",
+    });
+
+    await runSetupCommand(context);
+
+    const savedConfig = saveUserConfigMock.mock.calls[0][0];
+    expect(savedConfig.fallbackProvider).toBe("gemini");
+  });
+
+  it("clears fallbackProvider when the wizard removes it", async () => {
+    promptForSetupMock.mockResolvedValue({
+      provider: "groq",
+      model: "llama-3.3-70b-versatile",
+      language: "fr",
+      apiKeys: { groq: "new-key" },
+      fallbackProvider: null,
+    });
+
+    await runSetupCommand(context);
+
+    const savedConfig = saveUserConfigMock.mock.calls[0][0];
+    expect("fallbackProvider" in savedConfig).toBe(true);
+    expect(savedConfig.fallbackProvider).toBeUndefined();
+  });
+
+  it("omits fallbackProvider entirely when the wizard leaves it unchanged", async () => {
+    promptForSetupMock.mockResolvedValue({
+      provider: "groq",
+      model: "llama-3.3-70b-versatile",
+      language: "fr",
+      apiKeys: { groq: "new-key" },
+      fallbackProvider: undefined,
+    });
+
+    await runSetupCommand(context);
+
+    const savedConfig = saveUserConfigMock.mock.calls[0][0];
+    expect("fallbackProvider" in savedConfig).toBe(false);
   });
 
   it("does not ask for replacement when setup is incomplete", async () => {

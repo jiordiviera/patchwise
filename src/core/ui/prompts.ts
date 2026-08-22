@@ -1,15 +1,28 @@
 import { checkbox, confirm, input, password, select } from "@inquirer/prompts";
 import chalk from "chalk";
 
-import { listModelsForProvider } from "@/core/ai/create-provider";
+import {
+  DEFAULT_MODEL_BY_PROVIDER,
+  getProviderLabel,
+  listModelsForProvider,
+} from "@/core/ai/create-provider";
 import { formatCommitMessageWithBody } from "@/core/commit/format";
+import { toAppError } from "@/core/errors/app-error";
 import type { FileStatus } from "@/core/git/client";
-import type {
-  AppConfig,
-  CommitSuggestion,
-  Language,
-  ProviderName,
+import { printSetupSummary, printWarning } from "@/core/ui/output";
+import {
+  PROVIDER_NAMES,
+  type ApiKeys,
+  type AppConfig,
+  type CommitSuggestion,
+  type Language,
+  type ProviderName,
 } from "@/types";
+
+const PROVIDER_KEY_HINTS: Record<ProviderName, string> = {
+  gemini: "https://aistudio.google.com/apikey",
+  groq: "https://console.groq.com/keys",
+};
 
 export async function promptForFiles(files: FileStatus[]): Promise<string[]> {
   return checkbox({
@@ -71,7 +84,11 @@ export interface SetupAnswers {
   provider: ProviderName;
   model: string;
   language: Language;
-  apiKeys: { groq: string };
+  allowEmoji: boolean;
+  apiKeys: ApiKeys;
+  // undefined = leave the stored fallback provider untouched, null = clear
+  // it, a ProviderName = set/replace it.
+  fallbackProvider?: ProviderName | null;
 }
 
 export async function promptForSetup(
@@ -79,69 +96,29 @@ export async function promptForSetup(
 ): Promise<SetupAnswers> {
   const provider = await select<ProviderName>({
     message: chalk.bold("Select your AI provider"),
-    choices: [{ name: "Groq", value: "groq" }],
-    default: defaults.provider ?? "groq",
+    choices: [
+      { name: "Gemini (recommended)", value: "gemini" },
+      { name: "Groq", value: "groq" },
+    ],
+    default: defaults.provider ?? "gemini",
   });
 
-  const existingGroqApiKey = defaults.apiKeys?.groq;
+  const primaryApiKey = await promptForProviderApiKey(
+    provider,
+    defaults.apiKeys?.[provider],
+  );
 
-  const groqApiKey = await password({
-    message:
-      chalk.bold("Groq API key") +
-      chalk.dim(
-        existingGroqApiKey
-          ? " (press Enter to keep existing key)"
-          : " (https://console.groq.com/keys)",
-      ),
-    mask: "*",
-    validate(value) {
-      if (existingGroqApiKey && value.trim().length === 0) {
-        return true;
-      }
+  const model = await promptForModel(
+    provider,
+    primaryApiKey,
+    defaults.provider === provider ? defaults.model : undefined,
+  );
 
-      return value.trim().length > 0 || "API key is required.";
-    },
-  });
-
-  const trimmedApiKey = groqApiKey.trim() || existingGroqApiKey;
-
-  if (!trimmedApiKey) {
-    throw new Error("API key is required.");
-  }
-
-  // Fetch available models from Groq
-  let modelChoices: Array<{ name: string; value: string }> = [];
-
-  try {
-    const models = await listModelsForProvider("groq", trimmedApiKey);
-    modelChoices = models.map((m) => ({
-      name: `${m.name}`,
-      value: m.id,
-    }));
-  } catch {
-    // Fallback to manual input if fetch fails
-  }
-
-  let model: string;
-
-  if (modelChoices.length > 0) {
-    const defaultModel = defaults.model ?? "llama-3.3-70b-versatile";
-    const defaultChoice = modelChoices.find((c) => c.value === defaultModel);
-
-    model = await select({
-      message: chalk.bold("Select a Groq model"),
-      choices: modelChoices,
-      default: defaultChoice?.value,
-    });
-  } else {
-    model = await input({
-      message: chalk.bold("Groq model") + chalk.dim(" (enter manually)"),
-      default: defaults.model ?? "llama-3.3-70b-versatile",
-      validate(value) {
-        return value.trim().length > 0 || "Model is required.";
-      },
-    });
-  }
+  const fallbackSelection = await promptForFallbackProvider(
+    provider,
+    defaults.fallbackProvider,
+    defaults.apiKeys ?? {},
+  );
 
   const language = await select<Language>({
     message: chalk.bold("Default commit language"),
@@ -152,10 +129,201 @@ export async function promptForSetup(
     default: defaults.language ?? "en",
   });
 
+  const allowEmoji = await confirmAction(
+    "Use emoji in commit messages?",
+    defaults.allowEmoji ?? false,
+  );
+
+  const apiKeys: ApiKeys = { [provider]: primaryApiKey };
+
+  if (fallbackSelection.provider && fallbackSelection.apiKey) {
+    apiKeys[fallbackSelection.provider] = fallbackSelection.apiKey;
+  }
+
+  const fallbackForDisplay = resolveFallbackForDisplay(
+    fallbackSelection.provider,
+    defaults.fallbackProvider,
+    provider,
+  );
+
+  printSetupSummary({
+    provider: getProviderLabel(provider),
+    model: model.trim(),
+    fallbackProvider: fallbackForDisplay
+      ? getProviderLabel(fallbackForDisplay)
+      : undefined,
+    language: language === "fr" ? "French" : "English",
+    allowEmoji,
+  });
+
   return {
     provider,
     model: model.trim(),
     language,
-    apiKeys: { groq: trimmedApiKey },
+    allowEmoji,
+    apiKeys,
+    fallbackProvider: fallbackSelection.provider,
   };
+}
+
+async function promptForProviderApiKey(
+  provider: ProviderName,
+  existingApiKey: string | undefined,
+): Promise<string> {
+  const label = getProviderLabel(provider);
+
+  const entered = await password({
+    message:
+      chalk.bold(`${label} API key`) +
+      chalk.dim(
+        existingApiKey
+          ? " (press Enter to keep existing key)"
+          : ` (${PROVIDER_KEY_HINTS[provider]})`,
+      ),
+    mask: "*",
+    validate(value) {
+      if (existingApiKey && value.trim().length === 0) {
+        return true;
+      }
+
+      return value.trim().length > 0 || "API key is required.";
+    },
+  });
+
+  const apiKey = entered.trim() || existingApiKey;
+
+  if (!apiKey) {
+    throw new Error("API key is required.");
+  }
+
+  return apiKey;
+}
+
+async function promptForModel(
+  provider: ProviderName,
+  apiKey: string,
+  defaultModel: string | undefined,
+): Promise<string> {
+  const label = getProviderLabel(provider);
+  const fallbackDefault = defaultModel ?? DEFAULT_MODEL_BY_PROVIDER[provider];
+
+  try {
+    const models = await listModelsForProvider(provider, apiKey);
+
+    if (models.length === 0) {
+      throw new Error(`${label} returned no available models.`);
+    }
+
+    const defaultChoice = models.find((m) => m.id === fallbackDefault);
+
+    return await select({
+      message: chalk.bold(`Select a ${label} model`),
+      choices: models.map((m) => ({ name: m.name, value: m.id })),
+      default: defaultChoice?.id,
+    });
+  } catch (error) {
+    const appError = toAppError(error);
+    printWarning(`Could not fetch ${label} models: ${appError.message}`);
+
+    if (appError.hint) {
+      printWarning(appError.hint);
+    }
+
+    return input({
+      message: chalk.bold(`${label} model`) + chalk.dim(" (enter manually)"),
+      default: fallbackDefault,
+      validate(value) {
+        return value.trim().length > 0 || "Model is required.";
+      },
+    });
+  }
+}
+
+interface FallbackSelection {
+  provider: ProviderName | null | undefined;
+  apiKey?: string;
+}
+
+async function promptForFallbackProvider(
+  primaryProvider: ProviderName,
+  existingFallback: ProviderName | undefined,
+  existingApiKeys: ApiKeys,
+): Promise<FallbackSelection> {
+  const otherProviders = PROVIDER_NAMES.filter((p) => p !== primaryProvider);
+
+  if (otherProviders.length === 0) {
+    return { provider: undefined };
+  }
+
+  const currentFallback =
+    existingFallback && existingFallback !== primaryProvider
+      ? existingFallback
+      : undefined;
+
+  if (!currentFallback) {
+    const wantsFallback = await confirmAction(
+      "Configure a fallback provider?",
+      false,
+    );
+
+    if (!wantsFallback) {
+      return { provider: undefined };
+    }
+
+    return promptForFallbackChoice(otherProviders, existingApiKeys);
+  }
+
+  const action = await select<"keep" | "change" | "remove">({
+    message: chalk.bold(
+      `Fallback provider is currently ${getProviderLabel(currentFallback)}`,
+    ),
+    choices: [
+      { name: "Keep current", value: "keep" },
+      { name: "Change", value: "change" },
+      { name: "Remove", value: "remove" },
+    ],
+  });
+
+  if (action === "keep") {
+    return { provider: undefined };
+  }
+
+  if (action === "remove") {
+    return { provider: null };
+  }
+
+  return promptForFallbackChoice(otherProviders, existingApiKeys, currentFallback);
+}
+
+async function promptForFallbackChoice(
+  choices: readonly ProviderName[],
+  existingApiKeys: ApiKeys,
+  defaultChoice?: ProviderName,
+): Promise<FallbackSelection> {
+  const chosen = await select<ProviderName>({
+    message: chalk.bold("Select a fallback provider"),
+    choices: choices.map((p) => ({ name: getProviderLabel(p), value: p })),
+    default: defaultChoice,
+  });
+
+  if (existingApiKeys[chosen]) {
+    return { provider: chosen };
+  }
+
+  const apiKey = await promptForProviderApiKey(chosen, undefined);
+  return { provider: chosen, apiKey };
+}
+
+function resolveFallbackForDisplay(
+  selection: ProviderName | null | undefined,
+  existingFallback: ProviderName | undefined,
+  primaryProvider: ProviderName,
+): ProviderName | undefined {
+  if (selection !== undefined) {
+    return selection ?? undefined;
+  }
+
+  return existingFallback && existingFallback !== primaryProvider
+    ? existingFallback
+    : undefined;
 }

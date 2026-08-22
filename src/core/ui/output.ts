@@ -119,3 +119,25 @@ export function printPushed(branch: string): void {
 export function printCancelled(): void {
   console.log(`  ${chalk.yellow("↩")} ${chalk.yellow("Cancelled.")}`);
 }
+
+export interface SetupSummary {
+  provider: string;
+  model: string;
+  fallbackProvider?: string;
+  language: string;
+  allowEmoji: boolean;
+}
+
+export function printSetupSummary(summary: SetupSummary): void {
+  console.log();
+  console.log(divider("Setup Summary"));
+  console.log(`  Provider: ${chalk.white(summary.provider)}`);
+  console.log(`  Model:    ${chalk.white(summary.model)}`);
+  console.log(
+    `  Fallback: ${chalk.white(summary.fallbackProvider ?? "none")}`,
+  );
+  console.log(`  Language: ${chalk.white(summary.language)}`);
+  console.log(`  Emoji:    ${chalk.white(summary.allowEmoji ? "on" : "off")}`);
+  console.log(divider());
+  console.log();
+}
