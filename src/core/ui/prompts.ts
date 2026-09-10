@@ -1,4 +1,4 @@
-import { checkbox, confirm, input, password, select } from "@inquirer/prompts";
+import { checkbox, input, password, select } from "@inquirer/prompts";
 import chalk from "chalk";
 
 import {
@@ -9,6 +9,7 @@ import {
 import { formatCommitMessageWithBody } from "@/core/commit/format";
 import { toAppError } from "@/core/errors/app-error";
 import type { FileStatus } from "@/core/git/client";
+import { confirmAction } from "@/core/ui/confirm";
 import { printSetupSummary, printWarning } from "@/core/ui/output";
 import {
   PROVIDER_NAMES,
@@ -18,6 +19,9 @@ import {
   type Language,
   type ProviderName,
 } from "@/types";
+
+// Re-exported so existing importers (commit.ts, program.ts) keep working.
+export { confirmAction };
 
 const PROVIDER_KEY_HINTS: Record<ProviderName, string> = {
   gemini: "https://aistudio.google.com/apikey",
@@ -67,16 +71,6 @@ export async function promptForSuggestion(
     validate(value) {
       return value.trim().length > 0 || "Commit message cannot be empty.";
     },
-  });
-}
-
-export async function confirmAction(
-  message: string,
-  defaultValue = true,
-): Promise<boolean> {
-  return confirm({
-    message: chalk.yellow(`? ${message}`),
-    default: defaultValue,
   });
 }
 

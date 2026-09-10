@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@inquirer/core':
+        specifier: ^11.1.7
+        version: 11.1.7(@types/node@25.5.2)
       '@inquirer/prompts':
         specifier: ^8.3.2
         version: 8.3.2(@types/node@25.5.2)
@@ -36,6 +39,9 @@ importers:
       '@eslint/markdown':
         specifier: ^8.0.1
         version: 8.0.1
+      '@inquirer/testing':
+        specifier: ^3.3.13
+        version: 3.3.13(@inquirer/checkbox@5.1.2(@types/node@25.5.2))(@inquirer/confirm@6.0.10(@types/node@25.5.2))(@inquirer/editor@5.0.10(@types/node@25.5.2))(@inquirer/expand@5.0.10(@types/node@25.5.2))(@inquirer/external-editor@2.0.4(@types/node@25.5.2))(@inquirer/input@5.0.10(@types/node@25.5.2))(@inquirer/number@4.0.10(@types/node@25.5.2))(@inquirer/password@5.0.10(@types/node@25.5.2))(@inquirer/prompts@8.3.2(@types/node@25.5.2))(@inquirer/rawlist@5.2.6(@types/node@25.5.2))(@inquirer/search@4.1.6(@types/node@25.5.2))(@inquirer/select@5.1.2(@types/node@25.5.2))(@types/node@25.5.2)(vitest@4.1.2(@types/node@25.5.2)(vite@8.0.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@25.5.2)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)))
       '@types/node':
         specifier: ^25.5.2
         version: 25.5.2
@@ -525,9 +531,72 @@ packages:
       '@types/node':
         optional: true
 
+  '@inquirer/testing@3.3.13':
+    resolution: {integrity: sha512-B6CucnYryJq5sy6emWhtnLwoNe3pqPsl8BvPdV8/ids3BnOG5VelYaGVf36aPenVpS1bCIPo0RZ28BEAnWNcEA==}
+    engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
+    peerDependencies:
+      '@inquirer/checkbox': '>=1.0.0'
+      '@inquirer/confirm': '>=1.0.0'
+      '@inquirer/editor': '>=1.0.0'
+      '@inquirer/expand': '>=1.0.0'
+      '@inquirer/external-editor': '>=1.0.0'
+      '@inquirer/input': '>=1.0.0'
+      '@inquirer/number': '>=1.0.0'
+      '@inquirer/password': '>=1.0.0'
+      '@inquirer/prompts': '>=1.0.0'
+      '@inquirer/rawlist': '>=1.0.0'
+      '@inquirer/search': '>=1.0.0'
+      '@inquirer/select': '>=1.0.0'
+      '@types/jest': '>=29.0.0'
+      '@types/node': '>=18'
+      jest: '>=29.0.0'
+      vitest: '>=1.0.0'
+    peerDependenciesMeta:
+      '@inquirer/checkbox':
+        optional: true
+      '@inquirer/confirm':
+        optional: true
+      '@inquirer/editor':
+        optional: true
+      '@inquirer/expand':
+        optional: true
+      '@inquirer/external-editor':
+        optional: true
+      '@inquirer/input':
+        optional: true
+      '@inquirer/number':
+        optional: true
+      '@inquirer/password':
+        optional: true
+      '@inquirer/prompts':
+        optional: true
+      '@inquirer/rawlist':
+        optional: true
+      '@inquirer/search':
+        optional: true
+      '@inquirer/select':
+        optional: true
+      '@types/jest':
+        optional: true
+      '@types/node':
+        optional: true
+      jest:
+        optional: true
+      vitest:
+        optional: true
+
   '@inquirer/type@4.0.4':
     resolution: {integrity: sha512-PamArxO3cFJZoOzspzo6cxVlLeIftyBsZw/S9bKY5DzxqJVZgjoj1oP8d0rskKtp7sZxBycsoer1g6UeJV1BBA==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^21.7.0 || ^20.12.0'}
+    peerDependencies:
+      '@types/node': '>=18'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+
+  '@inquirer/type@4.1.1':
+    resolution: {integrity: sha512-yJoHYrMnxIsJZCY+0Vb66Dy3he3kL3e2wOBKhoSwWWAzZAY82emlxwgprCtp6yRixvNRNq9ztfRWQYPNr3Go7A==}
+    engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
     peerDependenciesMeta:
@@ -951,6 +1020,9 @@ packages:
 
   '@vitest/utils@4.1.2':
     resolution: {integrity: sha512-xw2/TiX82lQHA06cgbqRKFb5lCAy3axQ4H4SoUFhUsg+wztiet+co86IAMDtF6Vm1hc7J6j09oh/rgDn+JdKIQ==}
+
+  '@xterm/headless@6.0.0':
+    resolution: {integrity: sha512-5Yj1QINYCyzrZtf8OFIHi47iQtI+0qYFPHmouEfG8dHNxbZ9Tb9YGSuLcsEwj9Z+OL75GJqPyJbyoFer80a2Hw==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -2606,7 +2678,32 @@ snapshots:
     optionalDependencies:
       '@types/node': 25.5.2
 
+  '@inquirer/testing@3.3.13(@inquirer/checkbox@5.1.2(@types/node@25.5.2))(@inquirer/confirm@6.0.10(@types/node@25.5.2))(@inquirer/editor@5.0.10(@types/node@25.5.2))(@inquirer/expand@5.0.10(@types/node@25.5.2))(@inquirer/external-editor@2.0.4(@types/node@25.5.2))(@inquirer/input@5.0.10(@types/node@25.5.2))(@inquirer/number@4.0.10(@types/node@25.5.2))(@inquirer/password@5.0.10(@types/node@25.5.2))(@inquirer/prompts@8.3.2(@types/node@25.5.2))(@inquirer/rawlist@5.2.6(@types/node@25.5.2))(@inquirer/search@4.1.6(@types/node@25.5.2))(@inquirer/select@5.1.2(@types/node@25.5.2))(@types/node@25.5.2)(vitest@4.1.2(@types/node@25.5.2)(vite@8.0.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@25.5.2)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)))':
+    dependencies:
+      '@inquirer/type': 4.1.1(@types/node@25.5.2)
+      '@xterm/headless': 6.0.0
+      mute-stream: 3.0.0
+    optionalDependencies:
+      '@inquirer/checkbox': 5.1.2(@types/node@25.5.2)
+      '@inquirer/confirm': 6.0.10(@types/node@25.5.2)
+      '@inquirer/editor': 5.0.10(@types/node@25.5.2)
+      '@inquirer/expand': 5.0.10(@types/node@25.5.2)
+      '@inquirer/external-editor': 2.0.4(@types/node@25.5.2)
+      '@inquirer/input': 5.0.10(@types/node@25.5.2)
+      '@inquirer/number': 4.0.10(@types/node@25.5.2)
+      '@inquirer/password': 5.0.10(@types/node@25.5.2)
+      '@inquirer/prompts': 8.3.2(@types/node@25.5.2)
+      '@inquirer/rawlist': 5.2.6(@types/node@25.5.2)
+      '@inquirer/search': 4.1.6(@types/node@25.5.2)
+      '@inquirer/select': 5.1.2(@types/node@25.5.2)
+      '@types/node': 25.5.2
+      vitest: 4.1.2(@types/node@25.5.2)(vite@8.0.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@25.5.2)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0))
+
   '@inquirer/type@4.0.4(@types/node@25.5.2)':
+    optionalDependencies:
+      '@types/node': 25.5.2
+
+  '@inquirer/type@4.1.1(@types/node@25.5.2)':
     optionalDependencies:
       '@types/node': 25.5.2
 
@@ -2977,6 +3074,8 @@ snapshots:
       '@vitest/pretty-format': 4.1.2
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
+
+  '@xterm/headless@6.0.0': {}
 
   acorn-jsx@5.3.2(acorn@8.16.0):
     dependencies:

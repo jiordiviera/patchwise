@@ -3,15 +3,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const selectMock = vi.hoisted(() => vi.fn());
 const passwordMock = vi.hoisted(() => vi.fn());
 const inputMock = vi.hoisted(() => vi.fn());
-const confirmMock = vi.hoisted(() => vi.fn());
 const checkboxMock = vi.hoisted(() => vi.fn());
+const confirmActionMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@inquirer/prompts", () => ({
   select: selectMock,
   password: passwordMock,
   input: inputMock,
-  confirm: confirmMock,
   checkbox: checkboxMock,
+}));
+
+vi.mock("@/core/ui/confirm", () => ({
+  confirmAction: confirmActionMock,
 }));
 
 const listModelsForProviderMock = vi.hoisted(() => vi.fn());
@@ -49,7 +52,7 @@ describe("promptForSetup", () => {
       .mockResolvedValueOnce("gemini-2.5-flash") // model
       .mockResolvedValueOnce("en"); // language
     passwordMock.mockResolvedValueOnce("gemini-secret");
-    confirmMock
+    confirmActionMock
       .mockResolvedValueOnce(false) // "Configure a fallback provider?" -> No
       .mockResolvedValueOnce(true); // "Use emoji in commit messages?" -> Yes
 
@@ -77,7 +80,7 @@ describe("promptForSetup", () => {
     selectMock.mockResolvedValueOnce("gemini").mockResolvedValueOnce("en");
     passwordMock.mockResolvedValueOnce("gemini-secret");
     inputMock.mockResolvedValueOnce("gemini-2.0-flash");
-    confirmMock.mockResolvedValueOnce(false).mockResolvedValueOnce(false);
+    confirmActionMock.mockResolvedValueOnce(false).mockResolvedValueOnce(false);
 
     const answers = await promptForSetup({});
 
@@ -96,7 +99,7 @@ describe("promptForSetup", () => {
     passwordMock
       .mockResolvedValueOnce("gemini-secret") // primary key
       .mockResolvedValueOnce("groq-secret"); // fallback key (none on file)
-    confirmMock
+    confirmActionMock
       .mockResolvedValueOnce(true) // "Configure a fallback provider?" -> Yes
       .mockResolvedValueOnce(false); // emoji
 
@@ -116,7 +119,7 @@ describe("promptForSetup", () => {
       .mockResolvedValueOnce("groq")
       .mockResolvedValueOnce("en");
     passwordMock.mockResolvedValueOnce("gemini-secret");
-    confirmMock.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+    confirmActionMock.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
 
     const answers = await promptForSetup({
       apiKeys: { groq: "already-stored" },
@@ -134,14 +137,14 @@ describe("promptForSetup", () => {
       .mockResolvedValueOnce("keep") // fallback action
       .mockResolvedValueOnce("en"); // language
     passwordMock.mockResolvedValueOnce("gemini-secret");
-    confirmMock.mockResolvedValueOnce(false); // emoji only - no fallback y/n asked
+    confirmActionMock.mockResolvedValueOnce(false); // emoji only - no fallback y/n asked
 
     const answers = await promptForSetup({
       fallbackProvider: "groq",
       apiKeys: { groq: "already-stored" },
     });
 
-    expect(confirmMock).toHaveBeenCalledTimes(1);
+    expect(confirmActionMock).toHaveBeenCalledTimes(1);
     expect(answers.fallbackProvider).toBeUndefined();
     expect(outputMock.printSetupSummary).toHaveBeenCalledWith(
       expect.objectContaining({ fallbackProvider: "Groq" }),
@@ -155,7 +158,7 @@ describe("promptForSetup", () => {
       .mockResolvedValueOnce("remove")
       .mockResolvedValueOnce("en");
     passwordMock.mockResolvedValueOnce("gemini-secret");
-    confirmMock.mockResolvedValueOnce(false); // emoji only
+    confirmActionMock.mockResolvedValueOnce(false); // emoji only
 
     const answers = await promptForSetup({
       fallbackProvider: "groq",
