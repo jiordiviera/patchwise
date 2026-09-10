@@ -3,6 +3,7 @@ import { describeFallbackReason } from "@/core/ai/fallback-provider";
 import { extractFileNamesFromDiff, truncateDiff } from "@/core/commit/diff";
 import { applyScopeOverride, truncateSubject } from "@/core/commit/format";
 import { printSuccess, printWarning } from "@/core/ui/output";
+import { withSpinner } from "@/core/ui/spinner";
 import type { AppConfig, CommitSuggestion, SuggestionResult } from "@/types";
 
 export async function generateSuggestionsFromDiff(
@@ -15,15 +16,7 @@ export async function generateSuggestionsFromDiff(
   },
 ): Promise<SuggestionResult> {
   let activeProvider = config.provider;
-
-  const provider = createAIProvider(config, {
-    onFallback: (from, to, reason) => {
-      activeProvider = to;
-      printWarning(
-        `${getProviderLabel(from)} unavailable (${describeFallbackReason(reason.code)}) — falling back to ${getProviderLabel(to)}...`,
-      );
-    },
-  });
+  const fallbackNotices: string[] = [];
 
   const input = {
     diff: truncateDiff(diff),
@@ -43,7 +36,26 @@ export async function generateSuggestionsFromDiff(
     fewShotExamples: config.fewShotExamples,
   };
 
-  const result = await provider.generateCommitSuggestions(input);
+  const result = await withSpinner(
+    spinnerMessages(getProviderLabel(config.provider)),
+    (spinner) => {
+      const provider = createAIProvider(config, {
+        onFallback: (from, to, reason) => {
+          activeProvider = to;
+          fallbackNotices.push(
+            `${getProviderLabel(from)} unavailable (${describeFallbackReason(reason.code)}) — falling back to ${getProviderLabel(to)}...`,
+          );
+          spinner.update(spinnerMessages(getProviderLabel(to)));
+        },
+      });
+
+      return provider.generateCommitSuggestions(input);
+    },
+  );
+
+  for (const notice of fallbackNotices) {
+    printWarning(notice);
+  }
 
   if (activeProvider !== config.provider) {
     printSuccess(
@@ -64,6 +76,15 @@ export async function generateSuggestionsFromDiff(
       )
       .slice(0, 2),
   };
+}
+
+function spinnerMessages(providerLabel: string): string[] {
+  return [
+    `Sending the diff to ${providerLabel}...`,
+    `${providerLabel} is analyzing the changes...`,
+    `Generating commit suggestions...`,
+    `${providerLabel} is still working...`,
+  ];
 }
 
 function normalizeSuggestion(
